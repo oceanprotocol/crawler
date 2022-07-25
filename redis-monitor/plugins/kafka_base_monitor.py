@@ -38,10 +38,10 @@ class KafkaBaseMonitor(BaseMonitor):
             self.logger.debug("Creating new kafka producer using brokers: " +
                                str(brokers))
 
-            return KafkaProducer(bootstrap_servers=brokers,
-                                 value_serializer=lambda m: json.dumps(m).encode('utf-8'),
-                                 retries=3,
-                                 api_version=(0, 10, 1),
+            return KafkaProducer(bootstrap_servers=['kafka:29092'],
+                                     value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                                     retries=3,
+                                     api_version=(0, 10, 1),
                                  linger_ms=settings['KAFKA_PRODUCER_BATCH_LINGER_MS'],
                                  buffer_memory=settings['KAFKA_PRODUCER_BUFFER_BYTES'])
         except KeyError as e:
@@ -62,6 +62,7 @@ class KafkaBaseMonitor(BaseMonitor):
         '''
         Callback for failed send
         '''
+        self.logger.error(response)
         self.logger.error("Failed to send message to Kafka")
 
     def _send_to_kafka(self, master):
@@ -70,6 +71,7 @@ class KafkaBaseMonitor(BaseMonitor):
         @param master: the final dict to send
         @returns: True if successfully sent to kafka
         '''
+        self.logger.info("KMASDKOAMSDOASMDAKLDNASKDANSDAISDNASDN")
         appid_topic = "{prefix}.outbound_{appid}".format(
                                                     prefix=self.topic_prefix,
                                                     appid=master['appid'])

@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="row row-centered">
+    <div class="col-xs-8 col-sm-7 col-lg-10">
+      <div class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">Scrapy Cluster status</div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-8 col-sm-7 col-lg-4">
+                {% if status.redis_connected == true %}
+                <div class="panel panel-success">
+                {% else %}
+                <div class="panel panel-danger">
+                {% endif %}
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Redis</h3>
+                  </div>
+                  <div class="panel-body">
+                    {% if status.redis_connected == true %}
+                    <p style="font-size:70%;">Status: 'OK'<br/></p>
+                    {% else %}
+                    <p style="font-size:70%;">Status: 'ERROR'<br/></p>
+                    {% endif %}                    </div>
+                </div>
+              </div>
+              <div class="col-xs-8 col-sm-7 col-lg-4">
+                {% if status.kafka_connected == true %}
+                <div class="panel panel-success">
+                {% else %}
+                <div class="panel panel-danger">
+                {% endif %}
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Kafka</h3>
+                  </div>
+                  <div class="panel-body">
+                    {% if status.kafka_connected == true %}
+                    <p style="font-size:70%;">Status: 'OK'<br/></p>
+                    {% else %}
+                    <p style="font-size:70%;">Status: 'ERROR'<br/></p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-xs-8 col-sm-7 col-lg-4">
+                {% if status.node_health == "GREEN" %}
+                <div class="panel panel-success">
+                {% else %}
+                <div class="panel panel-danger">
+                {% endif %}
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Scrapy Cluster</h3>
+                  </div>
+                  <div class="panel-body">
+                    <p style="font-size:70%;">Up time: {{ status.uptime_sec }} secs<br/></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row row-centered">
+    <div class="col-xs-6 col-sm-8 col-lg-10">
+      <div class="panel panel-default">
+        <div class="panel-heading">Feed a crawl request to Scrapy Cluster</div>
+        <div class="panel-body">
+          <div class="container">
+            <div class="col-xs-6 col-sm-8 col-lg-10">
+              <form name="submitJob" action="submit" method="POST">
+                <div class="form-group">
+                  <label>URL:</label>
+                  <input type="text" name="url" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>CrawlID:</label>
+                  <input type="text" name="crawlid" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Depth:</label>
+                  <input type="text" name="depth" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Priority:</label>
+                  <input type="text" name="priority" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+{% endblock %}

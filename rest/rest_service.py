@@ -410,9 +410,9 @@ class RestService(object):
 
                 return KafkaConsumer(
                     self.settings['KAFKA_TOPIC_PREFIX'] + ".outbound_firehose",
-                    group_id=None,
-                    bootstrap_servers=self.settings['KAFKA_HOSTS'],
+                    group_id='demo-group',
                     api_version=(0, 10, 1),
+                    bootstrap_servers=['kafka:29092'],
                     consumer_timeout_ms=self.settings['KAFKA_CONSUMER_TIMEOUT'],
                     auto_offset_reset=self.settings['KAFKA_CONSUMER_AUTO_OFFSET_RESET'],
                     auto_commit_interval_ms=self.settings['KAFKA_CONSUMER_COMMIT_INTERVAL_MS'],
@@ -421,7 +421,8 @@ class RestService(object):
             except KeyError as e:
                 self.logger.error('Missing setting named ' + str(e),
                                    {'ex': traceback.format_exc()})
-            except:
+            except Exception as e:
+                self.logger.error(e)
                 self.logger.error("Couldn't initialize kafka consumer for topic",
                                    {'ex': traceback.format_exc()})
                 raise
@@ -434,7 +435,7 @@ class RestService(object):
                 self.logger.debug("Creating new kafka producer using brokers: " +
                                    str(self.settings['KAFKA_HOSTS']))
 
-                return KafkaProducer(bootstrap_servers=self.settings['KAFKA_HOSTS'],
+                return KafkaProducer(bootstrap_servers=['kafka:29092'],
                                      value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                                      retries=3,
                                      api_version=(0, 10, 1),
@@ -558,7 +559,8 @@ class RestService(object):
 
         try:
             record_metadata = future.get(timeout=self.settings['KAFKA_FEED_TIMEOUT'])
-        except KafkaError:
+        except Exception as e:
+            self.logger.error(e)
             self.logger.error("Lost connection to Kafka")
             self._spawn_kafka_connection_thread()
             return False
