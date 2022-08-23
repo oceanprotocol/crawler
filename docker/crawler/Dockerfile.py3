@@ -1,6 +1,6 @@
 FROM python:3.6
 MAINTAINER Madison Bahmer <madison.bahmer@istresearch.com>
-
+ARG CACHEBUST=1
 # os setup
 RUN apt-get update && apt-get -y install \
   python3-lxml \
@@ -30,6 +30,13 @@ COPY docker/crawler/settings.py /usr/src/app/crawling/localsettings.py
 COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
 
 # set up environment variables
+ENV SQL_CON   'mysql+pymysql://usr:rootpass@services_mysql-db_1/db'
+ENV MONGO_CON  mongodb://devroot:devroot@localhost:27017
+ENV DB_NAME  int-parser
+ENV SCRAPY_URL  'http://localhost:6800'
+ENV MONGO_DB_DATA_PATH ~/db/mongo
+ENV SQL_DB_DATA_PATH ~/db/sql
+ENV PARSER_REPORT_LOCATION ~/condo-reports
 
 # run the spider
-CMD ["scrapy", "runspider", "crawling/spiders/link_spider.py"]
+CMD ["scrapy", "runspider", "crawling/spiders/get_condos_page.py"]

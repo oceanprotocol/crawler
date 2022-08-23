@@ -104,7 +104,7 @@ SC_LOG_MAX_BYTES = 10 * 1024 * 1024
 SC_LOG_BACKUPS = 5
 SC_LOG_STDOUT = True
 SC_LOG_JSON = False
-SC_LOG_LEVEL = 'INFO'
+SC_LOG_LEVEL = 'DEBUG'
 
 
 # stats setup
@@ -145,8 +145,10 @@ ITEM_PIPELINES = {
     'crawling.pipelines.KafkaPipeline': 100,
     'crawling.pipelines.LoggingBeforePipeline': 1,
 }
-
+DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
 SPIDER_MIDDLEWARES = {
+    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
     # disable built-in DepthMiddleware, since we do our own
     # depth management per crawl request
     'scrapy.spidermiddlewares.depth.DepthMiddleware': None,
@@ -154,7 +156,12 @@ SPIDER_MIDDLEWARES = {
     'crawling.redis_stats_middleware.RedisStatsMiddleware': 101
 }
 
+SPLASH_URL = 'http://0.0.0.0:8050'
+
 DOWNLOADER_MIDDLEWARES = {
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
     # Handle timeout retries with the redis scheduler and logger
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
     'crawling.redis_retry_middleware.RedisRetryMiddleware': 510,
@@ -177,6 +184,9 @@ DOWNLOAD_TIMEOUT = 10
 
 # Avoid in-memory DNS cache. See Advanced topics of docs for info
 DNSCACHE_ENABLED = True
+
+MONGO_CON = 'mongodb://dev:dev@mongodb:27017'
+DB_NAME = 'int-parser'
 
 # Local Overrides
 # ~~~~~~~~~~~~~~~

@@ -49,4 +49,10 @@ tldextract==2.2.0  # Updated from 2.1.0
 ujson==1.35
 w3lib==1.19.0  # Updated from 1.18.0
 zope.interface==4.5.0  # Updated from 4.4.2
+pymongo==4.1.1
+python-dotenv==0.20.0
+pydantic==1.9.1
+phantomjs==1.4.1
+scrapy-splash==0.8.0
+
 # Generated with piprot 0.9.10

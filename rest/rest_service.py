@@ -609,53 +609,57 @@ class RestService(object):
     @error_catch
     def feed(self):
         # proof of concept to write things to kafka
-        if self.kafka_connected:
-            json_item = request.get_json()
-            self.wait_for_response = False
-            result = self._feed_to_kafka(json_item)
+        try:
+            if self.kafka_connected:
+                json_item = request.get_json()
+                self.wait_for_response = False
+                result = self._feed_to_kafka(json_item)
 
-            if 'uuid' in json_item:
-                    self.wait_for_response = True
-                    with self.uuids_lock:
-                        self.uuids[json_item['uuid']] = None
-
-            if result:
-                true_response = None
-                if self.wait_for_response:
-                    self.logger.debug("expecting kafka response for request")
-                    the_time = self.get_time()
-                    found_item = False
-                    while not found_item and int(self.get_time() - the_time) <= self.settings['WAIT_FOR_RESPONSE_TIME']:
-                        if self.uuids[json_item['uuid']] is not None:
-                            found_item = True
-                            true_response = self.uuids[json_item['uuid']]
-                            with self.uuids_lock:
-                                del self.uuids[json_item['uuid']]
-                    else:
+                if 'uuid' in json_item:
+                        self.wait_for_response = True
                         with self.uuids_lock:
-                            # key still exists, means we didnt find get our
-                            # response in time
-                            if json_item['uuid'] in self.uuids:
-                                self.uuids[json_item['uuid']] = 'poll'
-                                self.logger.debug("Did not find response, "
-                                                  "adding to poll")
-                    if found_item:
-                        self.logger.debug("Got successful reponse back from kafka")
+                            self.uuids[json_item['uuid']] = None
+
+                if result:
+                    true_response = None
+                    if self.wait_for_response:
+                        self.logger.debug("expecting kafka response for request")
+                        the_time = self.get_time()
+                        found_item = False
+                        while not found_item and int(self.get_time() - the_time) <= self.settings['WAIT_FOR_RESPONSE_TIME']:
+                            if self.uuids[json_item['uuid']] is not None:
+                                found_item = True
+                                true_response = self.uuids[json_item['uuid']]
+                                with self.uuids_lock:
+                                    del self.uuids[json_item['uuid']]
+                        else:
+                            with self.uuids_lock:
+                                # key still exists, means we didnt find get our
+                                # response in time
+                                if json_item['uuid'] in self.uuids:
+                                    self.uuids[json_item['uuid']] = 'poll'
+                                    self.logger.debug("Did not find response, "
+                                                      "adding to poll")
+                        if found_item:
+                            self.logger.debug("Got successful reponse back from kafka")
+                        else:
+                            self.logger.warn("Did not get response within timeout "
+                                             "from kafka. If the request is still "
+                                             "running, use the `/poll` API")
+                            true_response = {
+                                "poll_id": json_item['uuid']
+                            }
                     else:
-                        self.logger.warn("Did not get response within timeout "
-                                         "from kafka. If the request is still "
-                                         "running, use the `/poll` API")
-                        true_response = {
-                            "poll_id": json_item['uuid']
-                        }
-                else:
-                    self.logger.debug("Not expecting response from kafka")
+                        self.logger.debug("Not expecting response from kafka")
 
-                return self._create_ret_object(self.SUCCESS, true_response)
+                    return self._create_ret_object(self.SUCCESS, true_response)
 
-        self.logger.warn("Unable to write request to Kafka, not connected")
-        return self._create_ret_object(self.FAILURE, None, True,
-                                       "Unable to connect to Kafka"), 500
+            self.logger.warn("Unable to write request to Kafka, not connected")
+            return self._create_ret_object(self.FAILURE, None, True,
+                                           "Unable to connect to Kafka"), 500
+        except Exception as e:
+            self.logger.debug(e)
+
 
     @validate_json
     @validate_schema('poll')

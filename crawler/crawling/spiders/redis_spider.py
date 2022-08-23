@@ -2,12 +2,18 @@ from builtins import str
 from scrapy.exceptions import DontCloseSpider
 from scrapy.spiders import Spider
 from scrapy import signals
+from scrapy_splash import SplashRequest
 
 
 class RedisSpider(Spider):
     '''
     Base Spider for doing distributed crawls coordinated through Redis
     '''
+
+    # def start_requests(self):
+    #     for url in self.start_urls:
+    #         self._logger.info("been here")
+    #         yield SplashRequest(url, self.parse, args={'wait': 5})
 
     def _set_crawler(self, crawler):
         super(RedisSpider, self)._set_crawler(crawler)

@@ -41,6 +41,17 @@ services:
     restart: always
     ports:
       - "5343:5343"
+  ui:
+    image: istresearch/scrapy-cluster:ui-ci-dev
+    build:
+      context: .
+      dockerfile: docker/ui/Dockerfile.py3
+    depends_on:
+      - kafka
+      - redis
+    restart: always
+    ports:
+      - "5000:5000"
   redis:
     image: redis
     # command: redis-server --requirepass redispassword
@@ -104,13 +115,20 @@ services:
     volumes:
       - ./scripts:/docker-entrypoint-initdb.d
       - ${SQL_DB_DATA_PATH}:/var/lib/mysql
-  phpmyadmin:
-    depends_on:
-      - mysql-db
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - '3360:80'
+  mongo:
+    image: mongo
+    container_name: mongo
     environment:
-      PMA_HOST: mysql-db
-      MYSQL_ROOT_PASSWORD: rootpass
+      - MONGO_INITDB_ROOT_USERNAME=devroot
+      - MONGO_INITDB_ROOT_PASSWORD=devroot
+      - MONGO_INITDB_DATABASE=int-parser
+    volumes:
+      - .mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ~/apps/int-data:/data/db
+    ports:
+      - 27017:27017
+      - 9229:9229
+  splash:
+    image: scrapinghub/splash:latest
+    ports:
+      - "8050:8050"

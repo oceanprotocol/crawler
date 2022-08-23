@@ -553,6 +553,7 @@ def main():
             kafka_monitor.close()
     if args['command'] == 'feed':
         json_req = args['json']
+        print(json_req)
         try:
             parsed = json.loads(json_req)
         except ValueError:
