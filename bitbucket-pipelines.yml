@@ -15,4 +15,4 @@ pipelines:
               USER: $SERVER_USER
               PASSWORD: $SERVER_PASSWORD
               SERVER: $SERVER_IP
-              REMOTE_PATH: /home//code
+              REMOTE_PATH: /home/code
