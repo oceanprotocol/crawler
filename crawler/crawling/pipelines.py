@@ -24,7 +24,7 @@ class LoggingBeforePipeline(object):
 
     def __init__(self, logger):
         self.logger = logger
-        self.logger.debug("Setup before pipeline")
+        self.logger.info("Setup before pipeline")
 
     @classmethod
     def from_settings(cls, settings):
@@ -53,7 +53,8 @@ class LoggingBeforePipeline(object):
         return cls.from_settings(crawler.settings)
 
     def process_item(self, item, spider):
-        self.logger.debug("Processing item in LoggingBeforePipeline")
+        self.logger.info("Processing item in LoggingBeforePipeline")
+        self.logger.info(item)
         if isinstance(item, RawResponseItem):
             # make duplicate item, but remove unneeded keys
             item_copy = dict(item)
@@ -83,7 +84,7 @@ class KafkaPipeline(object):
         self.topic_list = []
         self.appid_topics = appids
         self.logger = logger
-        self.logger.debug("Setup kafka pipeline")
+        self.logger.info("Setup kafka pipeline")
         self.use_base64 = use_base64
 
     @classmethod
@@ -176,7 +177,7 @@ class KafkaPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            self.logger.debug("Processing item in KafkaPipeline")
+            self.logger.info("Processing item in KafkaPipeline")
             datum = dict(item)
             datum["timestamp"] = self._get_time()
             prefix = self.topic_prefix

@@ -1,30 +1,19 @@
 from __future__ import absolute_import
 
-import json
-import importlib
 from bs4 import BeautifulSoup
 
-from scrapy.http import Request
-from redis_spider import RedisSpider
-
-
-# from ..db.mysqlClient import dbM
-import db.mysqlClient
-
-# from crawler.crawling.db.models.CrawlerConfig import CrawlerConfig
-
-# from crawling.selectorUtils import getElements
-
-# from crawler.crawling.flowUtils import getNextSpider
-
-# from crawler.crawling.db.models.CrawlerConfig import PaginationType
-
+from crawling.db.mysqlClient import dbM
+from crawling.db.jpa.all_models import Role
+from crawling.mongo.models.CrawlerConfig import CrawlerConfig
+from crawling.mongo.mongoClient import mongoClient
+from crawling.spiders.redis_spider import RedisSpider
 import re
 
-# from crawler.crawling.db.models.CrawlerConfig import Spider
-from scrapy_splash import SplashRequest
+from crawling.db.jpa.all_models import Data
+from crawling.db.mysqlClient import db_session
+from crawling.db.repository import Repository
 
-# from crawler.crawling.db.jpa.all_models import Role
+from crawling.http.api_request import APIRequest
 
 
 class GetCondosPage(RedisSpider):
@@ -50,13 +39,22 @@ class GetCondosPage(RedisSpider):
             'render_all': 1,
             'wait': 5
         }
+        repo = Repository(db_session, Data)
+        items = repo.get_all().all()
+        db_session.close()
+        for data in items:
+            print(data.id)
+        print(items)
+        api_request = APIRequest('https://github.com/')
+        response = api_request('GET', '/about')
+        print(response.text)
         # yield SplashRequest(response.request.url, self.parseSec, args=splash_args)
         soup = BeautifulSoup(response.text, 'lxml')
         self._logger.info("ASDASD2")
         dbM.session.query(Role)
         self._logger.info(soup)
         config = CrawlerConfig(
-            **db["config"].find_one({"baseURL": re.findall("^https?:\/\/[^#?\/]+", str(response.request.url))[0]}))
+            **mongoClient["config"].find_one({"baseURL": re.findall("^https?:\/\/[^#?\/]+", str(response.request.url))[0]}))
         # try:
         #     self._logger.info("Finding config for " + response.request.url)
         #     config = CrawlerConfig(**db["config"].find_one({"baseURL": re.findall("^https?:\/\/[^#?\/]+", str(response.request.url))[0]}))

@@ -2,12 +2,14 @@ from __future__ import absolute_import
 from bs4 import BeautifulSoup
 
 
+import re
+
+from crawling.mongo.models.CrawlerConfig import CrawlerConfig
+from crawling.mongo.mongoClient import mongoClient
+from crawling.selectorUtils import getElements
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.db.models.CrawlerConfig import CrawlerConfig
-from crawling.selectorUtils import getElements
-from crawling.db.mongoClient import *
-import re
+
 class GetCondos(RedisSpider):
     '''
     A spider that walks all links from the requested URL. This is
@@ -22,7 +24,7 @@ class GetCondos(RedisSpider):
         try:
             self._logger.info("Finding config")
             config = CrawlerConfig(
-                **db["config"].find_one({"baseURL": re.search('^https?:\/\/[^#?\/]+', response.request.url)}))
+                **mongoClient["config"].find_one({"baseURL": re.search('^https?:\/\/[^#?\/]+', response.request.url)}))
 
             if config is None:
                 self._logger.info("No config found. Please add one")

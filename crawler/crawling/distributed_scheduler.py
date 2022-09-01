@@ -108,7 +108,7 @@ class DistributedScheduler(object):
     def setup_zookeeper(self):
         self.assign_path = settings.get('ZOOKEEPER_ASSIGN_PATH', "")
         self.my_id = settings.get('ZOOKEEPER_ID', 'all')
-        self.logger.debug("Trying to establish Zookeeper connection")
+        self.logger.info("Trying to establish Zookeeper connection")
         try:
             self.zoo_watcher = ZookeeperWatcher(
                                 hosts=settings.get('ZOOKEEPER_HOSTS'),
@@ -120,7 +120,7 @@ class DistributedScheduler(object):
             sys.exit(1)
 
         if self.zoo_watcher.ping():
-            self.logger.debug("Successfully set up Zookeeper connection")
+            self.logger.info("Successfully set up Zookeeper connection")
         else:
             self.logger.error("Could not ping Zookeeper")
             sys.exit(1)
@@ -149,7 +149,7 @@ class DistributedScheduler(object):
                     item = loaded_config['domains'][domain]
                     # check valid
                     if 'window' in item and 'hits' in item:
-                        self.logger.debug("Added domain {dom} to loaded config"
+                        self.logger.info("Added domain {dom} to loaded config"
                                           .format(dom=domain))
                         self.domain_config[domain] = item
             if 'blacklist' in loaded_config:
@@ -169,7 +169,7 @@ class DistributedScheduler(object):
             # we already have a throttled queue for this domain, update it to new settings
             if final_key in self.queue_dict:
                 self.queue_dict[final_key][0].window = float(self.domain_config[key]['window'])
-                self.logger.debug("Updated queue {q} with new config"
+                self.logger.info("Updated queue {q} with new config"
                                   .format(q=final_key))
                 # if scale is applied, scale back; otherwise use updated hits
                 if 'scale' in self.domain_config[key]:
@@ -232,7 +232,7 @@ class DistributedScheduler(object):
             throttle_key = throttle_key + the_domain
 
             if key not in self.queue_dict or newConf:
-                self.logger.debug("Added new Throttled Queue {q}"
+                self.logger.info("Added new Throttled Queue {q}"
                                   .format(q=key))
                 q = RedisPriorityQueue(self.redis_conn, key, encoding=ujson)
 
@@ -265,7 +265,7 @@ class DistributedScheduler(object):
         for key in list(self.queue_dict):
             diff = curr_time - self.queue_dict[key][1]
             if diff > self.queue_timeout:
-                self.logger.debug("Expiring domain queue key " + key)
+                self.logger.info("Expiring domain queue key " + key)
                 del self.queue_dict[key]
                 if key in self.queue_keys:
                     self.queue_keys.remove(key)
@@ -297,7 +297,7 @@ class DistributedScheduler(object):
             else:
                 raise IOError("Could not get valid IP Address")
             obj.close()
-            self.logger.debug("Current public ip: {ip}".format(ip=self.my_ip))
+            self.logger.info("Current public ip: {ip}".format(ip=self.my_ip))
         except IOError:
             self.logger.error("Could not reach out to get public ip")
             pass
@@ -310,7 +310,7 @@ class DistributedScheduler(object):
         '''
         Reports the crawler uuid to redis
         '''
-        self.logger.debug("Reporting self id", extra={'uuid':self.my_uuid})
+        self.logger.info("Reporting self id", extra={'uuid':self.my_uuid})
         key = "stats:crawler:{m}:{s}:{u}".format(
             m=socket.gethostname(),
             s=self.spider.name,
@@ -417,7 +417,7 @@ class DistributedScheduler(object):
 
         # # # # # # # # # # # # # # # # # # Duplicate link Filter # # # # # # # # # # # # # # #
         if not request.dont_filter and self.dupefilter.request_seen(request):
-            self.logger.debug("Request not added back to redis")
+            self.logger.info("Request not added back to redis")
             return
 
         # An individual crawling request of a domain's page
@@ -428,7 +428,7 @@ class DistributedScheduler(object):
         if req_dict['meta']['domain_max_pages'] and self.domain_max_page_filter.request_page_limit_reached(
                 request=request,
                 spider=self.spider):
-            self.logger.debug("Request {0} reached domain's page limit of {1}".format(
+            self.logger.info("Request {0} reached domain's page limit of {1}".format(
                 request.url,
                 req_dict['meta']['domain_max_pages']))
             return
@@ -437,7 +437,7 @@ class DistributedScheduler(object):
         if self.global_page_per_domain_limit and self.global_page_per_domain_filter.request_page_limit_reached(
                     request=request,
                     spider=self.spider):
-            self.logger.debug("Request {0} reached global page limit of {1}".format(
+            self.logger.info("Request {0} reached global page limit of {1}".format(
                     request.url,
                     self.global_page_per_domain_limit))
             return
@@ -474,15 +474,15 @@ class DistributedScheduler(object):
                     # this will populate ourself and other schedulers when
                     # they call create_queues
                     self.redis_conn.zadd(key, {ujson.dumps(req_dict): -req_dict['meta']['priority']})
-                self.logger.debug("Crawlid: '{id}' Appid: '{appid}' added to queue"
+                self.logger.info("Crawlid: '{id}' Appid: '{appid}' added to queue"
                     .format(appid=req_dict['meta']['appid'],
                             id=req_dict['meta']['crawlid']))
             else:
-                self.logger.debug("Crawlid: '{id}' Appid: '{appid}' expired"
+                self.logger.info("Crawlid: '{id}' Appid: '{appid}' expired"
                                   .format(appid=req_dict['meta']['appid'],
                                           id=req_dict['meta']['crawlid']))
         else:
-            self.logger.debug("Crawlid: '{id}' Appid: '{appid}' blacklisted"
+            self.logger.info("Crawlid: '{id}' Appid: '{appid}' blacklisted"
                               .format(appid=req_dict['meta']['appid'],
                                       id=req_dict['meta']['crawlid']))
 
@@ -530,7 +530,7 @@ class DistributedScheduler(object):
 
         item = self.find_item()
         if item:
-            self.logger.debug(u"Found url to crawl {url}" \
+            self.logger.info(u"Found url to crawl {url}" \
                     .format(url=item['url']))
             if 'meta' in item:
                 # item is a serialized request

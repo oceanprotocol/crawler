@@ -2,12 +2,13 @@ from __future__ import absolute_import
 from bs4 import BeautifulSoup
 
 
+import re
+
+from crawling.mongo.models.CrawlerConfig import CrawlerConfig
+from crawling.selectorUtils import getElements
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.db.models.CrawlerConfig import CrawlerConfig
-from crawling.selectorUtils import getElements
-from crawling.db.mongoClient import *
-import re
+
 class GetCondoDetails(RedisSpider):
     '''
     A spider that walks all links from the requested URL. This is
@@ -16,7 +17,7 @@ class GetCondoDetails(RedisSpider):
     name = "getCondoDetails"
 
     def __init__(self,  *args, **kwargs):
-        super(GetCondos, self).__init__(*args, **kwargs)
+        super(GetCondoDetails, self).__init__(*args, **kwargs)
 
     def parse(self, response):
         try:

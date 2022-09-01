@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
-from crawling.db.models.PyObjectId import PyObjectId
+from crawling.mongo.models.PyObjectId import PyObjectId
 
 class PaginationType(str, Enum):
     havePageNumGetMaxItems = 'havePageNumGetMaxItems'
@@ -40,6 +40,7 @@ class SelectorsValue(BaseModel):
 class PaginationSettings(BaseModel):
     url: Optional[str] = Field(...)
     type: PaginationType
+    staticPagination: Optional[int] = Field(...)
 
 
 class FieldInfo(BaseModel):

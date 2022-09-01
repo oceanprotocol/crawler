@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from crawling.db.models.CrawlerConfig import SelectorsValue
+from crawling.mongo.models.CrawlerConfig import SelectorsValue
 
 
 def getElements(soup, config: SelectorsValue):

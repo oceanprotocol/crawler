@@ -28,15 +28,19 @@ COPY docker/crawler/settings.py /usr/src/app/crawling/localsettings.py
 
 # copy testing script into container
 COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
+COPY docker/crawler/startSpiders.sh /usr/src/app/startSpiders.sh
 
 # set up environment variables
-ENV SQL_CON   'mysql+pymysql://usr:rootpass@services_mysql-db_1/db'
-ENV MONGO_CON  mongodb://devroot:devroot@localhost:27017
+ENV SQL_CON   'mysql+pymysql://usr:rootpass@international_parser-mysql-db-1/db'
+ENV MONGO_CON  mongodb://devroot:devroot@mongo:27017
 ENV DB_NAME  int-parser
+ENV QUEUE_HITS  200
 ENV SCRAPY_URL  'http://localhost:6800'
 ENV MONGO_DB_DATA_PATH ~/db/mongo
 ENV SQL_DB_DATA_PATH ~/db/sql
 ENV PARSER_REPORT_LOCATION ~/condo-reports
 
 # run the spider
-CMD ["scrapy", "runspider", "crawling/spiders/get_condos_page.py"]
+
+CMD ["sh", "startSpiders.sh"]
+#CMD ["ls"]

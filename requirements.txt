@@ -1,9 +1,9 @@
 # this file is deprecated and will be removed
-
+setuptools==58.0.0
 ConcurrentLogHandler==0.9.1
 Flask==1.0.2  # Updated from 0.12
 Jinja2==2.10  # Updated from 2.9.5
-MarkupSafe==1.0
+MarkupSafe==1.1
 PyDispatcher==2.0.5
 PyYAML==3.12
 Scrapy==1.5.0  # Updated from 1.4.0
@@ -48,11 +48,14 @@ testfixtures==6.0.2  # Updated from 5.1.1
 tldextract==2.2.0  # Updated from 2.1.0
 ujson==1.35
 w3lib==1.19.0  # Updated from 1.18.0
-zope.interface==4.5.0  # Updated from 4.4.2
+zope.interface==4.6.0  # Updated from 4.4.2
 pymongo==4.1.1
 python-dotenv==0.20.0
 pydantic==1.9.1
 phantomjs==1.4.1
 scrapy-splash==0.8.0
-
+beautifulsoup4==4.11.1
+mysql-connector-python==8.0.30
+SQLAlchemy==1.4.25
+Flask-MySQL==1.5.2
 # Generated with piprot 0.9.10

@@ -1,0 +1,11 @@
+class ApartmentInfo:
+    roomsNo: int
+    bathroomsNo: int
+    surface: int
+    type: str
+    createdOn: str
+    zone: str
+    price: int
+    ccy: str
+    refNo: str
+    url: str
