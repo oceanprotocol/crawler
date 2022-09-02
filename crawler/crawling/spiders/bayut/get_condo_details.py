@@ -64,7 +64,8 @@ class BayoutCondoDetails(RedisSpider):
             repo = Repository(db_session, Data)
 
             client = repoClient.find_by_code('BAYUT')
-            repo.add(Data(info=json.dumps(apInfo.__dict__), client= client))
+            # print(json.dumps(apInfo.__dict__))
+            repo.add(Data(info=apInfo.__dict__, client= client))
 
             db_session.commit()
         except Exception as ex:

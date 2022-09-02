@@ -15,4 +15,4 @@ db_session  = scoped_session(sessionmaker(autocommit=False,
 dbM = declarative_base()
 dbM.query = db_session.query_property()
 _ = importlib.import_module("crawling.db.jpa.all_models")
-dbM.metadata.create_all(bind=engine)
+db_session.commit()

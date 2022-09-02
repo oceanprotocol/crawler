@@ -4,6 +4,9 @@ import datetime
 from crawling.db.mysqlClient import dbM
 from sqlalchemy.orm import relationship
 
+from crawling.db.mysqlClient import engine
+
+
 class Client(dbM):
     __tablename__ = 'Client'
     id = Column(Integer, primary_key=True)
@@ -64,3 +67,6 @@ class Data(dbM):
         self.user = user
         self.client_id = client_id
         self.client = client
+
+dbM.metadata.create_all(bind=engine)
+
