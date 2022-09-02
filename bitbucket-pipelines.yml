@@ -16,3 +16,15 @@ pipelines:
               PASSWORD: $SERVER_PASSWORD
               SERVER: $SERVER_IP
               REMOTE_PATH: /home/code
+    - step:
+        name: Start services 
+        script:
+          - pipe: atlassian/ssh-run:0.3.1
+            variables:
+              SSH_USER: $SERVER_SSH_USER
+              SERVER: $SERVER_IP
+              MODE: 'command'
+              COMMAND: >
+                sudo chmod -R 777 /home/code/ &&
+                cd /home/code &&
+                docker-compose  up --force-recreate -d kafka_monitor redis_monitor crawler rest ui kafka-ui
