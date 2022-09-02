@@ -12,6 +12,7 @@ RUN apt-get update && apt-get -y install \
   libxslt1-dev \
   && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/app/logs
 WORKDIR /usr/src/app
 
 # install requirements
@@ -31,7 +32,7 @@ COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
 COPY docker/crawler/startSpiders.sh /usr/src/app/startSpiders.sh
 
 # set up environment variables
-ENV SQL_CON   'mysql+pymysql://usr:rootpass@international_parser-mysql-db-1/db'
+ENV SQL_CON   'mysql+pymysql://usr:rootpass@mysql/db'
 ENV MONGO_CON  mongodb://devroot:devroot@mongo:27017
 ENV DB_NAME  int-parser
 ENV QUEUE_HITS  200
@@ -39,6 +40,7 @@ ENV SCRAPY_URL  'http://localhost:6800'
 ENV MONGO_DB_DATA_PATH ~/db/mongo
 ENV SQL_DB_DATA_PATH ~/db/sql
 ENV PARSER_REPORT_LOCATION ~/condo-reports
+ENV SC_LOG_DIR /usr/src/app/logs
 
 # run the spider
 

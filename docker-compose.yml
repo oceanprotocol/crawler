@@ -101,6 +101,7 @@ services:
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
   mysql-db:
     image: mysql:5.7
+    container_name: mysql
     restart: always
     platform: linux/amd64
     environment:

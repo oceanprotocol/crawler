@@ -163,6 +163,7 @@ SPIDER_MIDDLEWARES = {
 
 DOWNLOADER_MIDDLEWARES = {
     # Handle timeout retries with the redis scheduler and logger
+    'scrapy_zyte_smartproxy.ZyteSmartProxyMiddleware': 610,
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
     'crawling.redis_retry_middleware.RedisRetryMiddleware': 510,
     # exceptions processed in reverse order
@@ -187,6 +188,11 @@ DNSCACHE_ENABLED = True
 
 # Local Overrides
 # ~~~~~~~~~~~~~~~
+
+# enable Zyte Proxy
+ZYTE_SMARTPROXY_ENABLED = True
+# the APIkey you get with your subscription
+ZYTE_SMARTPROXY_APIKEY = '5ea15747cedd43ed8755c108e956c727'
 
 try:
     from .localsettings import *
