@@ -12,7 +12,7 @@ REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', None)
 REDIS_SOCKET_TIMEOUT = int(os.getenv('REDIS_SOCKET_TIMEOUT', 10))
 
 # Kafka server information
-KAFKA_HOSTS = [x.strip() for x in os.getenv('KAFKA_HOSTS', 'kafka:9092').split(',')]
+KAFKA_HOSTS = [x.strip() for x in os.getenv('KAFKA_HOSTS', 'kafka:29092').split(',')]
 KAFKA_INCOMING_TOPIC = os.getenv('KAFKA_INCOMING_TOPIC', 'demo.incoming')
 KAFKA_GROUP = os.getenv('KAFKA_GROUP', 'demo-group')
 KAFKA_FEED_TIMEOUT = 10

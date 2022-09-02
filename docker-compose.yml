@@ -3,6 +3,7 @@ version: '2'
 services:
   kafka_monitor:
     image: istresearch/scrapy-cluster:kafka-monitor-ci-dev
+    container_name: kafka-monitor
     build:
       context: .
       dockerfile: docker/kafka-monitor/Dockerfile.py3
@@ -12,6 +13,7 @@ services:
     restart: always
   redis_monitor:
     image: istresearch/scrapy-cluster:redis-monitor-ci-dev
+    container_name: redis-monitor
     build:
       context: .
       dockerfile: docker/redis-monitor/Dockerfile.py3
@@ -22,6 +24,7 @@ services:
     restart: always
   crawler:
     image: istresearch/scrapy-cluster:crawler-ci-dev
+    container_name: crawler
     build:
       context: .
       dockerfile: docker/crawler/Dockerfile.py3
@@ -32,6 +35,7 @@ services:
     restart: always
   rest:
     image: istresearch/scrapy-cluster:rest-ci-dev
+    container_name: rest
     build:
       context: .
       dockerfile: docker/rest/Dockerfile.py3
@@ -43,6 +47,7 @@ services:
       - "5343:5343"
   ui:
     image: istresearch/scrapy-cluster:ui-ci-dev
+    container_name: ui
     build:
       context: .
       dockerfile: docker/ui/Dockerfile.py3
@@ -54,6 +59,7 @@ services:
       - "5000:5000"
   redis:
     image: redis
+    container_name: redis
     # command: redis-server --requirepass redispassword
     ports:
       - "6379:6379"
@@ -70,6 +76,7 @@ services:
       - 32181:2181
   kafka:
     image: confluentinc/cp-kafka:7.1.2
+    container_name: kafka
     ports:
       - "9092:9092"
     environment:
@@ -131,5 +138,6 @@ services:
       - 9229:9229
   splash:
     image: scrapinghub/splash:latest
+    container_name: splash
     ports:
       - "8050:8050"

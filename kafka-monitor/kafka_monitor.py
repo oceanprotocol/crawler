@@ -71,7 +71,7 @@ class KafkaMonitor(object):
             if plugins[key] is None:
                 continue
             # valid plugin, import and setup
-            self.logger.debug("Trying to load plugin {cls}".format(cls=key))
+            self.logger.info("Trying to load plugin {cls}".format(cls=key))
             the_class = self._import_class(key)
             instance = the_class()
             instance._set_logger(self.logger)
@@ -84,7 +84,7 @@ class KafkaMonitor(object):
             mini = {}
             mini['instance'] = instance
             mini['schema'] = the_schema
-            self.logger.debug("Successfully loaded plugin {cls}".format(cls=key))
+            self.logger.info("Successfully loaded plugin {cls}".format(cls=key))
             self.plugins_dict[plugins[key]] = mini
 
         self.plugins_dict = OrderedDict(sorted(list(self.plugins_dict.items()),
@@ -131,7 +131,7 @@ class KafkaMonitor(object):
 
         try:
             redis_conn.info()
-            self.logger.debug("Connected to Redis in StatsCollector Setup")
+            self.logger.info("Connected to Redis in StatsCollector Setup")
             self.redis_conn = redis_conn
         except ConnectionError:
             self.logger.warn("Failed to connect to Redis in StatsCollector"
@@ -169,10 +169,10 @@ class KafkaMonitor(object):
                                 key='{k}:{t}'.format(k=temp_key2, t=time),
                                 window=time,
                                 cycle_time=self.settings['STATS_CYCLE'])
-                self.logger.debug("Set up total/fail Stats Collector '{i}'"\
+                self.logger.info("Set up total/fail Stats Collector '{i}'"\
                         .format(i=item))
             except AttributeError as e:
-                self.logger.warning("Unable to find Stats Time '{s}'"\
+                self.logger.info("Unable to find Stats Time '{s}'"\
                         .format(s=item))
         total1 = StatsCollector.get_hll_counter(redis_conn=redis_conn,
                                                 key='{k}:lifetime'.format(k=temp_key1),
@@ -182,7 +182,7 @@ class KafkaMonitor(object):
                                                 key='{k}:lifetime'.format(k=temp_key2),
                                                 cycle_time=self.settings['STATS_CYCLE'],
                                                 roll=False)
-        self.logger.debug("Set up total/fail Stats Collector 'lifetime'")
+        self.logger.info("Set up total/fail Stats Collector 'lifetime'")
         self.stats_dict['total']['lifetime'] = total1
         self.stats_dict['fail']['lifetime'] = total2
 
@@ -207,16 +207,16 @@ class KafkaMonitor(object):
                                     key='{k}:{t}'.format(k=temp_key, t=time),
                                     window=time,
                                     cycle_time=self.settings['STATS_CYCLE'])
-                    self.logger.debug("Set up {p} plugin Stats Collector '{i}'"\
+                    self.logger.info("Set up {p} plugin Stats Collector '{i}'"\
                             .format(p=plugin_name, i=item))
                 except AttributeError:
-                    self.logger.warning("Unable to find Stats Time '{s}'"\
+                    self.logger.info("Unable to find Stats Time '{s}'"\
                             .format(s=item))
             total = StatsCollector.get_hll_counter(redis_conn=redis_conn,
                                                    key='{k}:lifetime'.format(k=temp_key),
                                                    cycle_time=self.settings['STATS_CYCLE'],
                                                    roll=False)
-            self.logger.debug("Set up {p} plugin Stats Collector 'lifetime'"\
+            self.logger.info("Set up {p} plugin Stats Collector 'lifetime'"\
                             .format(p=plugin_name))
             self.stats_dict['plugins'][plugin_name]['lifetime'] = total
 
@@ -225,7 +225,7 @@ class KafkaMonitor(object):
         Sets up kafka connections
         '''
         self.consumer = self._create_consumer()
-        self.logger.debug("Successfully connected to Kafka")
+        self.logger.info("Successfully connected to Kafka")
 
     def extend_with_default(self, validator_class):
         '''
@@ -253,7 +253,7 @@ class KafkaMonitor(object):
         Continuous loop that reads from a kafka topic and tries to validate
         incoming messages
         '''
-        self.logger.debug("Processing messages")
+        self.logger.info("Processing messages")
         old_time = 0
         while True:
             self._process_messages()
@@ -271,7 +271,7 @@ class KafkaMonitor(object):
         try:
             for message in self.consumer:
                 if message is None:
-                    self.logger.debug("no message")
+                    self.logger.info("no message")
                     break
                 try:
                     self._increment_total_stat(message.value)
@@ -309,13 +309,13 @@ class KafkaMonitor(object):
                     extras['parsed'] = False
                     extras['valid'] = False
                     extras['data'] = message.value
-                    self.logger.warning('Unparseable JSON Received',
+                    self.logger.info('Unparseable JSON Received',
                                         extra=extras)
                     self._increment_fail_stat(message.value)
         except OffsetOutOfRangeError:
             # consumer has no idea where they are
             self.consumer.seek_to_end()
-            self.logger.error("Kafka offset out of range error")
+            self.logger.info("Kafka offset out of range error")
 
     def _increment_total_stat(self, string):
         '''
@@ -325,7 +325,7 @@ class KafkaMonitor(object):
         '''
         string = string + str(time.time())
         if 'total' in self.stats_dict:
-            self.logger.debug("Incremented total stats")
+            self.logger.info("Incremented total stats")
             for key in self.stats_dict['total']:
                 if key == 'lifetime':
                     self.stats_dict['total'][key].increment(string)
@@ -344,7 +344,7 @@ class KafkaMonitor(object):
             item = item + str(time.time())
 
         if 'fail' in self.stats_dict:
-            self.logger.debug("Incremented fail stats")
+            self.logger.info("Incremented fail stats")
             for key in self.stats_dict['fail']:
                 if key == 'lifetime':
                     self.stats_dict['fail'][key].increment(item)
@@ -360,7 +360,7 @@ class KafkaMonitor(object):
         '''
         item['ts'] = time.time()
         if 'plugins' in self.stats_dict:
-            self.logger.debug("Incremented plugin '{p}' plugin stats"\
+            self.logger.info("Incremented plugin '{p}' plugin stats"\
                     .format(p=name))
             for key in self.stats_dict['plugins'][name]:
                 if key == 'lifetime':
@@ -372,9 +372,10 @@ class KafkaMonitor(object):
         '''
         Dumps the stats out
         '''
+        self.logger.info("ADs")
         extras = {}
         if 'total' in self.stats_dict:
-            self.logger.debug("Compiling total/fail dump stats")
+            self.logger.info("Compiling total/fail dump stats")
             for key in self.stats_dict['total']:
                 final = 'total_{t}'.format(t=key)
                 extras[final] = self.stats_dict['total'][key].value()
@@ -383,7 +384,7 @@ class KafkaMonitor(object):
                 extras[final] = self.stats_dict['fail'][key].value()
 
         if 'plugins' in self.stats_dict:
-            self.logger.debug("Compiling plugin dump stats")
+            self.logger.info("Compiling plugin dump stats")
             for name in self.stats_dict['plugins']:
                 for key in self.stats_dict['plugins'][name]:
                     final = 'plugin_{n}_{t}'.format(n=name, t=key)
@@ -444,14 +445,14 @@ class KafkaMonitor(object):
         if result:
             self.logger.info("Successfully fed item to Kafka")
         else:
-            self.logger.error("Failed to feed item into Kafka")
+            self.logger.info("Failed to feed item into Kafka")
 
     @retry(wait_exponential_multiplier=500, wait_exponential_max=10000)
     def _create_consumer(self):
         """Tries to establing the Kafka consumer connection"""
         try:
             brokers = self.settings['KAFKA_HOSTS']
-            self.logger.debug("Creating new kafka consumer using brokers: " +
+            self.logger.info("Creating new kafka consumer using brokers: " +
                                str(brokers) + ' and topic ' +
                                self.settings['KAFKA_INCOMING_TOPIC'])
 
@@ -467,7 +468,7 @@ class KafkaMonitor(object):
                 enable_auto_commit=self.settings['KAFKA_CONSUMER_AUTO_COMMIT_ENABLE'],
                 max_partition_fetch_bytes=self.settings['KAFKA_CONSUMER_FETCH_MESSAGE_MAX_BYTES'])
         except KeyError as e:
-            self.logger.error('Missing setting named ' + str(e),
+            self.logger.info('Missing setting named ' + str(e),
                                {'ex': traceback.format_exc()})
         except:
             self.logger.error("Couldn't initialize kafka consumer for topic",
@@ -480,7 +481,7 @@ class KafkaMonitor(object):
         """Tries to establish a Kafka consumer connection"""
         try:
             brokers = self.settings['KAFKA_HOSTS']
-            self.logger.debug("Creating new kafka producer using brokers: " +
+            self.logger.info("Creating new kafka producer using brokers: " +
                                str(brokers))
 
             return KafkaProducer(bootstrap_servers=brokers,
@@ -490,10 +491,10 @@ class KafkaMonitor(object):
                                  linger_ms=self.settings['KAFKA_PRODUCER_BATCH_LINGER_MS'],
                                  buffer_memory=self.settings['KAFKA_PRODUCER_BUFFER_BYTES'])
         except KeyError as e:
-            self.logger.error('Missing setting named ' + str(e),
+            self.logger.info('Missing setting named ' + str(e),
                                {'ex': traceback.format_exc()})
         except:
-            self.logger.error("Couldn't initialize kafka producer.",
+            self.logger.info("Couldn't initialize kafka producer.",
                                {'ex': traceback.format_exc()})
             raise
 
