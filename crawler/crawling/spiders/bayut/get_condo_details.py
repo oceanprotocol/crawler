@@ -35,8 +35,8 @@ class BayoutCondoDetails(RedisSpider):
 
     def parse(self, response):
         try:
-            c = self.c + 1
-            self._logger.info("Finding config for req NO " + self.c + " and url " + response.request.url)
+            self.c = self.c + 1
+            self._logger.info("Finding config for req NO " + str(self.c) + " and url " + response.request.url)
             config = CrawlerConfig(
                 **mongoClient["config"].find_one({"baseURL": re.findall('^https?:\/\/[^#?\/]+', response.request.url)[0]}))
 
