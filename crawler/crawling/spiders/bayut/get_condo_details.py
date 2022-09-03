@@ -29,14 +29,14 @@ class BayoutCondoDetails(RedisSpider):
     the entrypoint for generic crawling.
     '''
     name = "bayut_condo_details"
-
+    c = 1
     def __init__(self,  *args, **kwargs):
         super(BayoutCondoDetails, self).__init__(*args, **kwargs)
 
     def parse(self, response):
         try:
-
-            self._logger.info("Finding config")
+            c = self.c + 1
+            self._logger.info("Finding config for req NO " + self.c + " and url " + response.request.url)
             config = CrawlerConfig(
                 **mongoClient["config"].find_one({"baseURL": re.findall('^https?:\/\/[^#?\/]+', response.request.url)[0]}))
 

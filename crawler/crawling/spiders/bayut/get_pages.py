@@ -18,7 +18,7 @@ class BayutGetPages(RedisSpider):
     the entrypoint for generic crawling.
     '''
     name = "bayut_pages"
-
+    c = 0
     def __init__(self,  *args, **kwargs):
         super(BayutGetPages, self).__init__(*args, **kwargs)
 
@@ -34,7 +34,8 @@ class BayutGetPages(RedisSpider):
             self._logger.info("Found config")
             for x in range(2, config.sourceSettings.paginationSettings.staticPagination):
                 url = config.sourceSettings.paginationSettings.url % {'PAG_NUM': str(x)}
-                self._logger.info("Generated " + url)
+                c = c+1
+                self._logger.info("Generated "+ c+" with url " + url)
                 yield generateNextSpider(response, url, 'bayut_condos')
 
         except Exception as ex:

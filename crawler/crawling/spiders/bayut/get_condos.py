@@ -18,13 +18,14 @@ class BayutParseCondos(RedisSpider):
     the entrypoint for generic crawling.
     '''
     name = "bayut_condos"
-
+    c = 0
     def __init__(self,  *args, **kwargs):
         super(BayutParseCondos, self).__init__(*args, **kwargs)
 
     def parse(self, response):
         try:
-            self._logger.info("Finding config for "+ response.request.url)
+            c = self.c + 1
+            self._logger.info("Finding config for req NO " +self.c +" and url "+ response.request.url)
             config = CrawlerConfig(
                 **mongoClient["config"].find_one({"baseURL": re.findall('^https?:\/\/[^#?\/]+', response.request.url)[0]}))
 
@@ -34,7 +35,10 @@ class BayutParseCondos(RedisSpider):
             self._logger.info("Found config")
             soup = BeautifulSoup(response.text, 'lxml')
             condoLinks = soup.find_all("a", {"aria-label": "Listing link"})
+            tr = 0
             for x in condoLinks:
+                tr = tr + 1
+                self._logger.info("Generate req no  " + tr + " with url " + str(config.baseURL)+str(x["href"]))
                 yield generateNextSpider(response, str(config.baseURL)+str(x["href"]), 'bayut_condo_details')
         except Exception as ex:
             print(ex)
