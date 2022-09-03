@@ -24,8 +24,7 @@ class BayutParseCondos(RedisSpider):
 
     def parse(self, response):
         try:
-            self.c = self.c + 1
-            self._logger.info("Finding config for req NO " +str(self.c) +" and url "+ response.request.url)
+            self._logger.info("Finding config for url "+ response.request.url)
             config = CrawlerConfig(
                 **mongoClient["config"].find_one({"baseURL": re.findall('^https?:\/\/[^#?\/]+', response.request.url)[0]}))
 
@@ -35,11 +34,14 @@ class BayutParseCondos(RedisSpider):
             self._logger.info("Found config")
             soup = BeautifulSoup(response.text, 'lxml')
             condoLinks = soup.find_all("a", {"aria-label": "Listing link"})
-            tr = 0
+            uniqueList = []
             for x in condoLinks:
-                tr = tr + 1
-                self._logger.info("Generate req no  " + str(tr) + " with url " + str(config.baseURL)+str(x["href"]))
-                yield generateNextSpider(response, str(config.baseURL)+str(x["href"]), 'bayut_condo_details')
+                uniqueList.append(str(x["href"]))
+
+            for x in list(set(uniqueList)):
+                self.c = self.c + 1
+                self._logger.info("Generate req no  " + str(self.c) + " with url " + str(config.baseURL)+str(x))
+                yield generateNextSpider(response, str(config.baseURL)+str(x), 'bayut_condo_details')
         except Exception as ex:
             print(ex)
 
