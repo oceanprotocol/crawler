@@ -190,9 +190,9 @@ DNSCACHE_ENABLED = True
 # ~~~~~~~~~~~~~~~
 
 # enable Zyte Proxy
-ZYTE_SMARTPROXY_ENABLED = True
+ZYTE_SMARTPROXY_ENABLED = False
 # the APIkey you get with your subscription
-ZYTE_SMARTPROXY_APIKEY = '5ea15747cedd43ed8755c108e956c727'
+# ZYTE_SMARTPROXY_APIKEY = '5ea15747cedd43ed8755c108e956c727'
 
 try:
     from .localsettings import *

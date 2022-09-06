@@ -27,4 +27,4 @@ pipelines:
               COMMAND: >
                 sudo chmod -R 777 /home/code/ &&
                 cd /home/code &&
-                docker-compose  up --force-recreate -d kafka_monitor redis_monitor crawler rest ui kafka-ui
+                docker-compose  up --build --force-recreate

@@ -18,4 +18,5 @@ def generateNextSpider(response, url: str, nextSpider: str):
     for key in response.meta.keys():
         req.meta[key] = response.meta[key]
     req.meta['spiderid'] = nextSpider
+    print(req.meta['expires'])
     return req

@@ -12,6 +12,7 @@ COPY redis-monitor/requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN rm -rf /usr/src/utils
 
+ENV STATS_PLUGINS True
 # move codebase over
 COPY redis-monitor /usr/src/app
 

@@ -103,7 +103,7 @@ class LogRetryMiddleware(object):
         extras['appid'] = request.meta['appid']
         extras['crawlid'] = request.meta['crawlid']
         extras['url'] = request.url
-
+        self.logger.error(exception)
         self.logger.error('Scraper Retry', extra=extras)
 
     def _setup_stats_status_codes(self):
