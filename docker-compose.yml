@@ -143,7 +143,9 @@ services:
       - "8050:8050"
   redis:
     image: redis:6.2-alpine
+    container_name: redis
     restart: always
+    user: root
     ports:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel debug

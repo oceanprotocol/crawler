@@ -148,7 +148,11 @@ class DistributedScheduler(object):
                 for domain in loaded_config['domains']:
                     item = loaded_config['domains'][domain]
                     # check valid
+                    self.logger.info("TIME")
+                    self.logger.info(self.hits)
+                    self.logger.info(self.window)
                     if 'window' in item and 'hits' in item:
+
                         self.logger.info("Added domain {dom} to loaded config"
                                           .format(dom=domain))
                         self.domain_config[domain] = item
@@ -310,6 +314,9 @@ class DistributedScheduler(object):
         '''
         Reports the crawler uuid to redis
         '''
+
+        self.logger.info(self.hits)
+        self.logger.info(self.window)
         self.logger.info("Reporting self id", extra={'uuid':self.my_uuid})
         key = "stats:crawler:{m}:{s}:{u}".format(
             m=socket.gethostname(),
