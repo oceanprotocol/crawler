@@ -267,16 +267,14 @@ class DistributedScheduler(object):
         Expires old queue_dict keys that have not been used in a long time.
         Prevents slow memory build up when crawling lots of different domains
         '''
-        self.logger.info("WUT")
         curr_time = time.time()
         for key in list(self.queue_dict):
             diff = curr_time - self.queue_dict[key][1]
-            self.logger.info("WUT2")
             if diff > self.queue_timeout:
                 self.logger.info("Expiring domain queue key " + key)
                 del self.queue_dict[key]
                 if key in self.queue_keys:
-                    self.logger.info("WUT3")
+                    self.logger.info("REMOVED")
                     self.queue_keys.remove(key)
 
     def check_config(self):
@@ -391,7 +389,7 @@ class DistributedScheduler(object):
         self.spider = spider
         self.spider.set_logger(self.logger)
         self.create_queues()
-        self.setup_zookeeper()
+        # self.setup_zookeeper()
         self.dupefilter = RFPDupeFilter(self.redis_conn,
                                         self.spider.name + ':dupefilter',
                                         self.rfp_timeout)
@@ -506,18 +504,17 @@ class DistributedScheduler(object):
         '''
         random.shuffle(self.queue_keys)
         count = 0
-        self.logger.info("finding item")
         while count <= self.item_retries:
             for key in self.queue_keys:
                 # skip if the whole domain has been blacklisted in zookeeper
                 if key.split(':')[1] in self.black_domains:
                     continue
-                self.logger.info("finding item POPOP")
                 # the throttled queue only returns an item if it is allowed
                 item = self.queue_dict[key][0].pop()
-
                 if item:
                     # update timeout and return
+                    self.logger.info(key)
+                    self.logger.info(time.time())
                     self.queue_dict[key][1] = time.time()
                     return item
 

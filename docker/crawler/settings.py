@@ -38,7 +38,7 @@ IP_ADDR_REGEX = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
 SCHEDULER_PERSIST = True
 
 # seconds to wait between seeing new queues, cannot be faster than spider_idle time of 5
-SCHEDULER_QUEUE_REFRESH = 10
+SCHEDULER_QUEUE_REFRESH = 5
 
 # throttled queue defaults per domain, x hits in a y second window
 QUEUE_HITS = int(os.getenv('QUEUE_HITS', 10))
@@ -120,7 +120,7 @@ STATS_RESPONSE_CODES = [
     403,
     504,
 ]
-STATS_CYCLE = 5
+STATS_CYCLE = 10
 # from time variables in scutils.stats_collector class
 STATS_TIMES = [
     'SECONDS_15_MINUTE',
