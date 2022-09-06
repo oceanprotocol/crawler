@@ -166,6 +166,7 @@ class DistributedScheduler(object):
         Check to update existing queues already in memory
         new queues are created elsewhere
         '''
+        self.logger.info("update queues")
         for key in self.domain_config:
             final_key = "{name}:{domain}:queue".format(
                     name=self.spider.name,
@@ -266,13 +267,16 @@ class DistributedScheduler(object):
         Expires old queue_dict keys that have not been used in a long time.
         Prevents slow memory build up when crawling lots of different domains
         '''
+        self.logger.info("WUT")
         curr_time = time.time()
         for key in list(self.queue_dict):
             diff = curr_time - self.queue_dict[key][1]
+            self.logger.info("WUT2")
             if diff > self.queue_timeout:
                 self.logger.info("Expiring domain queue key " + key)
                 del self.queue_dict[key]
                 if key in self.queue_keys:
+                    self.logger.info("WUT3")
                     self.queue_keys.remove(key)
 
     def check_config(self):
@@ -368,10 +372,12 @@ class DistributedScheduler(object):
                                          bytes=my_bytes,
                                          backups=my_backups)
 
+
         global_page_per_domain_limit = settings.get('GLOBAL_PAGE_PER_DOMAIN_LIMIT', None)
         global_page_per_domain_limit_timeout = settings.get('GLOBAL_PAGE_PER_DOMAIN_LIMIT_TIMEOUT', 600)
         domain_max_page_timeout = settings.get('DOMAIN_MAX_PAGE_TIMEOUT', 600)
-
+        logger.info("CCC")
+        logger.info(global_page_per_domain_limit_timeout)
         return cls(server, persist, up_int, timeout, retries, logger, hits,
                    window, mod, ip_refresh, add_type, add_ip, ip_regex,
                    backlog_blacklist, queue_timeout, global_page_per_domain_limit,
@@ -385,7 +391,7 @@ class DistributedScheduler(object):
         self.spider = spider
         self.spider.set_logger(self.logger)
         self.create_queues()
-        #self.setup_zookeeper()
+        self.setup_zookeeper()
         self.dupefilter = RFPDupeFilter(self.redis_conn,
                                         self.spider.name + ':dupefilter',
                                         self.rfp_timeout)
@@ -500,12 +506,13 @@ class DistributedScheduler(object):
         '''
         random.shuffle(self.queue_keys)
         count = 0
-
+        self.logger.info("finding item")
         while count <= self.item_retries:
             for key in self.queue_keys:
                 # skip if the whole domain has been blacklisted in zookeeper
                 if key.split(':')[1] in self.black_domains:
                     continue
+                self.logger.info("finding item POPOP")
                 # the throttled queue only returns an item if it is allowed
                 item = self.queue_dict[key][0].pop()
 

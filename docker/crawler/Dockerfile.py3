@@ -35,7 +35,7 @@ COPY docker/crawler/startSpiders.sh /usr/src/app/startSpiders.sh
 ENV SQL_CON   'mysql+pymysql://usr:rootpass@mysql/db'
 ENV MONGO_CON  mongodb://devroot:devroot@mongo:27017
 ENV DB_NAME  int-parser
-ENV QUEUE_HITS  200
+ENV QUEUE_HITS  20
 ENV SCRAPY_URL  'http://localhost:6800'
 ENV MONGO_DB_DATA_PATH ~/db/mongo
 ENV SQL_DB_DATA_PATH ~/db/sql
