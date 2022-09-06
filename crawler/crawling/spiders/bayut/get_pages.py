@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+
+import time
+
 from bs4 import BeautifulSoup
 
 
@@ -34,6 +37,7 @@ class BayutGetPages(RedisSpider):
             self._logger.info("Found config")
             for x in range(2, config.sourceSettings.paginationSettings.staticPagination):
                 url = config.sourceSettings.paginationSettings.url % {'PAG_NUM': str(x)}
+                time.sleep(6)
                 self.c =  self.c+1
                 self._logger.info("Generated "+ str(self.c)+" with url " + url)
                 yield generateNextSpider(response, url, 'bayut_condos')
