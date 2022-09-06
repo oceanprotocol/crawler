@@ -40,7 +40,8 @@ ENV SCRAPY_URL  'http://localhost:6800'
 ENV MONGO_DB_DATA_PATH ~/db/mongo
 ENV SQL_DB_DATA_PATH ~/db/sql
 ENV PARSER_REPORT_LOCATION ~/condo-reports
-ENV SC_LOG_DIR /usr/src/app/logs
+ENV SC_LOG_STDOUT False
+ENV SC_LOG_LEVEL DEBUG
 
 # run the spider
 

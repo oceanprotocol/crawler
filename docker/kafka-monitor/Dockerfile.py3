@@ -12,11 +12,16 @@ COPY kafka-monitor/requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN rm -rf /usr/src/utils
 
+# ENV
+ENV LOG_STDOUT False
+ENV LOG_LEVEL DEBUG
+
 # move codebase over
 COPY kafka-monitor /usr/src/app
 
 # override settings via localsettings.py
 COPY docker/kafka-monitor/settings.py /usr/src/app/localsettings.py
+COPY docker/kafka-monitor/run.sh /usr/src/app/run.sh
 
 # copy testing script into container
 COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
@@ -24,4 +29,4 @@ COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
 # set up environment variables
 
 # run command
-CMD ["python", "kafka_monitor.py", "run"]
+CMD ["sh", "run.sh"]

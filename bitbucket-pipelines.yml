@@ -27,4 +27,8 @@ pipelines:
               COMMAND: >
                 sudo chmod -R 777 /home/code/ &&
                 cd /home/code &&
-                docker-compose  up --build --force-recreate
+                docker-compose  up --build --force-recreate -d
+                && docker run --restart=always -d -v=/var/run/docker.sock:/var/run/docker.sock gliderlabs/logspout  syslog+tls://logs6.papertrailapp.com:50651
+
+
+              #  docker-compose  up --force-recreate --build kafka_monitor redis_monitor crawler rest ui kafka-ui -d

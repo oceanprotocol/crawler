@@ -57,13 +57,13 @@ services:
     restart: always
     ports:
       - "5000:5000"
-  redis:
-    image: redis
-    container_name: redis
-    # command: redis-server --requirepass redispassword
-    ports:
-      - "6379:6379"
-    restart: always
+#  redis:
+#    image: redis
+#    container_name: redis
+#    # command: redis-server --requirepass redispassword
+#    ports:
+#      - "6379:6379"
+#    restart: always
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.2
     hostname: zookeeper
@@ -141,3 +141,14 @@ services:
     container_name: splash
     ports:
       - "8050:8050"
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel debug
+    volumes:
+      - cache:/data
+volumes:
+  cache:
+    driver: local

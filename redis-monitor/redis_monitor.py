@@ -488,7 +488,7 @@ class RedisMonitor(object):
         extras['total_backlog'] = total_backlog
 
         if not self.logger.json:
-            self.logger.info('Queue Stats Dump:\n{0}'.format(
+            self.logger.debug('Queue Stats Dump:\n{0}'.format(
                     json.dumps(extras, indent=4, sort_keys=True)))
         else:
             self.logger.info('Queue Stats Dump', extra=extras)
