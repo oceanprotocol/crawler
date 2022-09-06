@@ -225,7 +225,8 @@ class DistributedScheduler(object):
         for key in self.queue_keys:
             # build final queue key, depending on type and ip bools
             throttle_key = ""
-
+            self.logger.info("HAHAHSAHHA")
+            self.logger.info(self.add_ip)
             if self.add_type:
                 throttle_key = self.spider.name + ":"
             if self.add_ip:
@@ -537,6 +538,8 @@ class DistributedScheduler(object):
 
         item = self.find_item()
         if item:
+            self.logger.info(self.hits)
+            self.logger.info(self.window)
             self.logger.info(u"Found url to crawl {url}" \
                     .format(url=item['url']))
             if 'meta' in item:

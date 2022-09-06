@@ -28,7 +28,6 @@ pipelines:
                 sudo chmod -R 777 /home/code/ &&
                 cd /home/code &&
                 docker-compose  up --build --force-recreate -d
-                && docker run --restart=always -d -v=/var/run/docker.sock:/var/run/docker.sock gliderlabs/logspout  syslog+tls://logs6.papertrailapp.com:50651
-
+                && docker exec redis sh -c 'chmod 777 -R /data && chmod 777 -R /etc  && chmod 777 -R /var && chmod 777 -R /var/spool && chmod 777 -R /var/spool/cron'
 
               #  docker-compose  up --force-recreate --build kafka_monitor redis_monitor crawler rest ui kafka-ui -d
