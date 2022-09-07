@@ -1,8 +1,6 @@
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
-from sqlalchemy.sql.expression import false
 
 class Repository:
     entity: object = NotImplementedError

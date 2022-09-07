@@ -57,13 +57,7 @@ services:
     restart: always
     ports:
       - "5000:5000"
-#  redis:
-#    image: redis
-#    container_name: redis
-#    # command: redis-server --requirepass redispassword
-#    ports:
-#      - "6379:6379"
-#    restart: always
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.2
     hostname: zookeeper
@@ -102,8 +96,6 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
-#      KAFKA_CLUSTERS_0_JMXPORT: 9997
-#      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry0:8085
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: first
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
   mysql-db:
