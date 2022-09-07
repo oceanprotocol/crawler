@@ -142,13 +142,13 @@ services:
     ports:
       - "8050:8050"
   redis:
-    image: redis:6.2-alpine
+    image: redis:7.0.4
     container_name: redis
     restart: always
     user: root
-    ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel debug
+    expose:
+      - 6379
+    command: redis-server --save 20 1 --loglevel debug --requirepass YQV!myz_grv7grn@pzn
     volumes:
       - cache:/data
 volumes:

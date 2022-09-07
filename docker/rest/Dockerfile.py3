@@ -18,6 +18,7 @@ COPY rest /usr/src/app
 # ENV
 ENV LOG_STDOUT False
 ENV LOG_LEVEL DEBUG
+ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
 
 # override settings via localsettings.py
 COPY docker/rest/settings.py /usr/src/app/localsettings.py

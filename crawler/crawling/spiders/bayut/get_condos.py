@@ -43,7 +43,7 @@ class BayutParseCondos(RedisSpider):
 
             for x in list(set(uniqueList)):
                 self.c = self.c + 1
-                time.sleep(0.6)
+                time.sleep(0.4)
                 self._logger.info("Generate req no  " + str(self.c) + " with url " + str(config.baseURL)+str(x))
                 yield generateNextSpider(response, str(config.baseURL)+str(x), 'bayut_condo_details')
         except Exception as ex:

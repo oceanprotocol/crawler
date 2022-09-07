@@ -16,6 +16,7 @@ RUN rm -rf /usr/src/utils
 ENV LOG_STDOUT False
 ENV LOG_LEVEL DEBUG
 ENV STATS_PLUGINS True
+ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
 
 # move codebase over
 COPY redis-monitor /usr/src/app

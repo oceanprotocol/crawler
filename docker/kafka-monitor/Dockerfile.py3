@@ -15,6 +15,7 @@ RUN rm -rf /usr/src/utils
 # ENV
 ENV LOG_STDOUT False
 ENV LOG_LEVEL DEBUG
+ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
 
 # move codebase over
 COPY kafka-monitor /usr/src/app
