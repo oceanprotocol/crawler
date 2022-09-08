@@ -1,0 +1,319 @@
+[{
+  "_id": {
+    "$oid": "62eb5e5ac2d970c9029bf827"
+  },
+  "id": "62eb5e14c2d970c9029bf826",
+  "sourceName": "Emirates Estate",
+  "sourceURL": "https://emirates.estate/property/?tab=complex",
+  "createdDate": "2021-03-05",
+  "updatedDate": "2021-03-05",
+  "fields": [
+    {
+      "fieldName": "ccy",
+      "fieldType": "string",
+      "fieldSelector": "..css"
+    }
+  ],
+  "sourceSettings": {
+    "havePagination": true,
+    "haveInfiniteScroll": false,
+    "haveHTTP": false,
+    "flowId": "",
+    "selectors": {
+      "pagination": {
+        "value": ".pagination > li:nth-last-child(2) > a",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "jsSelector"
+      },
+      "condoElementLink": {
+        "value": "div",
+        "classValue": "title",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup"
+      },
+      "condoList": {
+        "value": "div",
+        "classValue": "info",
+        "getFirstElement": true,
+        "type": "soup"
+      }
+    },
+    "flow": [
+      "getCondosPage",
+      "getCondos"
+    ],
+    "paginationSettings": {
+      "url": "https://emirates.estate/property/?tab=complex&n=%(PAG_NUM)s#objects",
+      "type": "replaceInURL"
+    }
+  },
+  "baseURL": "https://emirates.estate"
+},{
+  "_id": {
+    "$oid": "62f378e96c14e8dda0deb365"
+  },
+  "id": "62eb5e14c2d970c9029bf826",
+  "sourceName": "dxboffplan",
+  "sourceURL": "https://dxboffplan.com/dubai-developments/",
+  "createdDate": "2021-03-05",
+  "updatedDate": "2021-03-05",
+  "fields": [
+    {
+      "fieldName": "ccy",
+      "fieldType": "string",
+      "fieldSelector": "..css"
+    }
+  ],
+  "sourceSettings": {
+    "havePagination": false,
+    "haveInfiniteScroll": false,
+    "haveHTTP": false,
+    "flowId": "",
+    "selectors": {
+      "condoElementLink": {
+        "value": "a",
+        "classValue": "dev-link",
+        "getFirstElement": false,
+        "selectElement": "href",
+        "type": "soup"
+      },
+      "condoList": {
+        "value": "div",
+        "classValue": "dev_item",
+        "getFirstElement": true,
+        "type": "soup"
+      }
+    },
+    "flow": [
+      "getCondos",
+      "getCondoDetails"
+    ]
+  },
+  "baseURL": "https://dxboffplan.com"
+},{
+  "_id": {
+    "$oid": "62f39fab6c14e8dda0deb366"
+  },
+  "id": "62eb5e14c2d970c9029bf826",
+  "sourceName": "bayut",
+  "sourceURL": "https://www.bayut.com/for-sale/property/dubai/",
+  "createdDate": "2021-03-05",
+  "updatedDate": "2021-03-05",
+  "fields": [
+    {
+      "fieldName": "ccy",
+      "fieldType": "string",
+      "fieldSelector": "..css"
+    }
+  ],
+  "sourceSettings": {
+    "havePagination": true,
+    "haveInfiniteScroll": false,
+    "haveHTTP": false,
+    "flowId": "",
+    "selectors": {
+      "pagination": {
+        "value": "a",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup",
+        "titleValue": "Next"
+      },
+      "condoElementLink": {
+        "value": "div",
+        "classValue": "title",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup"
+      },
+      "condoList": {
+        "value": "div",
+        "classValue": "info",
+        "getFirstElement": true,
+        "type": "soup"
+      }
+    },
+    "flow": [
+      "getCondosPage",
+      "getCondos"
+    ],
+    "paginationSettings": {
+      "url": "https://www.bayut.com/for-sale/property/dubai/page-%(PAG_NUM)s/",
+      "type": "replaceInURL",
+      "staticPagination": 3
+    }
+  },
+  "baseURL": "https://www.bayut.com",
+  "flowTimeouts": {
+    "bayut_pages": 10,
+    "bayut_condos": 0.4
+  }
+},{
+  "_id": {
+    "$oid": "6315de717a8102d4a549c7ee"
+  },
+  "id": "62eb5e14c2d970c9029bf826",
+  "sourceName": "sportisimo",
+  "sourceURL": "https://www.sportisimo.com/running/",
+  "createdDate": "2021-03-05",
+  "updatedDate": "2021-03-05",
+  "fields": [
+    {
+      "fieldName": "ccy",
+      "fieldType": "string",
+      "fieldSelector": "..css"
+    }
+  ],
+  "sourceSettings": {
+    "havePagination": true,
+    "haveInfiniteScroll": false,
+    "haveHTTP": false,
+    "flowId": "",
+    "selectors": {
+      "pagination": {
+        "value": "a",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup",
+        "titleValue": "Next"
+      },
+      "condoElementLink": {
+        "value": "div",
+        "classValue": "title",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup"
+      },
+      "condoList": {
+        "value": "div",
+        "classValue": "info",
+        "getFirstElement": true,
+        "type": "soup"
+      }
+    },
+    "flow": [
+      "getCondosPage",
+      "getCondos"
+    ],
+    "paginationSettings": {
+      "url": "https://www.sportisimo.com/running/?page=%(PAG_NUM)s",
+      "type": "replaceInURL",
+      "staticPagination": 3
+    }
+  },
+  "baseURL": "https://www.sportisimo.com",
+  "flowTimeouts": {
+    "sportisimo_pages": 10,
+    "sportisimo_products": 0.4
+  }
+},{
+  "_id": {
+    "$oid": "63160c1f7a8102d4a549c7ef"
+  },
+  "id": "62eb5e14c2d970c9029bf826",
+  "sourceName": "buzzfeed",
+  "sourceURL": "https://www.buzzfeed.com/world.xml",
+  "createdDate": "2021-03-05",
+  "updatedDate": "2021-03-05",
+  "fields": [
+    {
+      "fieldName": "ccy",
+      "fieldType": "string",
+      "fieldSelector": "..css"
+    }
+  ],
+  "sourceSettings": {
+    "havePagination": true,
+    "haveInfiniteScroll": false,
+    "haveHTTP": false,
+    "flowId": "",
+    "selectors": {
+      "pagination": {
+        "value": "a",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup",
+        "titleValue": "Next"
+      },
+      "condoElementLink": {
+        "value": "div",
+        "classValue": "title",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup"
+      },
+      "condoList": {
+        "value": "div",
+        "classValue": "info",
+        "getFirstElement": true,
+        "type": "soup"
+      }
+    },
+    "flow": [
+      "getCondosPage",
+      "getCondos"
+    ],
+    "paginationSettings": {
+      "url": "https://www.sportisimo.com/running/?page=%(PAG_NUM)s",
+      "type": "replaceInURL",
+      "staticPagination": 3
+    }
+  },
+  "baseURL": "https://www.buzzfeed.com"
+},{
+  "_id": {
+    "$oid": "6316d23a7a8102d4a549c7f0"
+  },
+  "id": "62eb5e14c2d970c9029bf826",
+  "sourceName": "evomag",
+  "sourceURL": "https://www.evomag.ro/tv-multimedia-televizoare-led/allview/",
+  "createdDate": "2021-03-05",
+  "updatedDate": "2021-03-05",
+  "fields": [
+    {
+      "fieldName": "ccy",
+      "fieldType": "string",
+      "fieldSelector": "..css"
+    }
+  ],
+  "sourceSettings": {
+    "havePagination": true,
+    "haveInfiniteScroll": false,
+    "haveHTTP": false,
+    "flowId": "",
+    "selectors": {
+      "pagination": {
+        "value": "a",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup",
+        "titleValue": "Next"
+      },
+      "condoElementLink": {
+        "value": "div",
+        "classValue": "title",
+        "getFirstElement": true,
+        "selectElement": "href",
+        "type": "soup"
+      },
+      "condoList": {
+        "value": "div",
+        "classValue": "info",
+        "getFirstElement": true,
+        "type": "soup"
+      }
+    },
+    "flow": [
+      "getCondosPage",
+      "getCondos"
+    ],
+    "paginationSettings": {
+      "url": "https://www.sportisimo.com/running/?page=%(PAG_NUM)s",
+      "type": "replaceInURL",
+      "staticPagination": 60000
+    }
+  },
+  "baseURL": "https://www.evomag.ro"
+}]

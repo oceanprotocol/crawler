@@ -35,7 +35,6 @@ class SportisimoGetPagesSpider(RedisSpider):
         for x in range(2, page):
             url = config.sourceSettings.paginationSettings.url % {'PAG_NUM': str(x)}
             if config.flowTimeouts[self.name]:
-                self._logger.info("ACAC2")
                 time.sleep(config.flowTimeouts[self.name])
             yield generateNextSpider(response, url, 'sportisimo_products')
 

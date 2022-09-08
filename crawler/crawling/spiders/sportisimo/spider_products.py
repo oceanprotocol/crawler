@@ -35,7 +35,6 @@ class SportisimoProductsSpider(RedisSpider):
 
         for x in productLinks:
             if config.flowTimeouts[self.name]:
-                self._logger.info("ACAC")
                 time.sleep(config.flowTimeouts[self.name])
             yield generateNextSpider(response, x.a['href'], 'sportisimo_product_details')
 
