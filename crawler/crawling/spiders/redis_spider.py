@@ -1,5 +1,4 @@
 import time
-from urllib.request import Request
 
 from scrapy.exceptions import DontCloseSpider
 from scrapy.spiders import Spider

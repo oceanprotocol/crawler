@@ -1,17 +1,13 @@
 import os
 import signal
-import sys
 import time
 from flask import Flask
 
-from crawling.exceptions.ParsingValuesException import ParsingValuesException
 from crawling.mongo.models.SpiderStartConfig import SpiderStartConfig
 from crawling.mongo.mongoClient import mongoClient
 
 app = Flask(__name__)
 
-from array import array
-from itertools import count
 import secrets
 
 from subprocess import Popen

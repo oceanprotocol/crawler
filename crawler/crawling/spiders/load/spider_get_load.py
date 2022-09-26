@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import re
-import time
 from pathlib import Path
 
 from crawling.models.nextSpidersInfo import NextSpidersInfo
@@ -10,7 +9,7 @@ from crawling.mongo.mongoClient import mongoClient
 from crawling.spiders.redis_spider import RedisSpider
 
 
-from scrapy.exceptions import CloseSpider, IgnoreRequest, UsageError
+from scrapy.exceptions import CloseSpider
 
 
 class GetLoad(RedisSpider):

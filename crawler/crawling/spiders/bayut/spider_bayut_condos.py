@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import time
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -13,7 +12,6 @@ from crawling.mongo.models.CrawlerConfig import CrawlerConfig
 from crawling.mongo.mongoClient import mongoClient
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.flowUtils import generateNextSpider
 
 
 class BayutParseCondos(RedisSpider):

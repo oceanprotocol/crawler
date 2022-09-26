@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import time
 
 import re
 from pathlib import Path
@@ -10,7 +9,6 @@ from crawling.mongo.models.CrawlerConfig import CrawlerConfig
 from crawling.mongo.mongoClient import mongoClient
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.flowUtils import generateNextSpider
 
 
 class BayutGetPages(RedisSpider):

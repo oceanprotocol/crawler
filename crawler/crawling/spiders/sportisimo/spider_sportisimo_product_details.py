@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from pathlib import Path
-from scrapy.exceptions import DontCloseSpider
 from bs4 import BeautifulSoup
 
 
@@ -15,10 +14,8 @@ from crawling.selectorUtils import selectSoupElement
 from crawling.db.jpa.all_models import Data
 from crawling.db.mysqlClient import db_session
 from crawling.db.repository import Repository
-from scrapy import signals
 from crawling.db.jpa.all_models import Client
 
-from scrapy.spiders import Spider
 from crawling.db.models.shoeInfo import ShoeInfo
 
 from crawling.objUtils import getPreciseNumber

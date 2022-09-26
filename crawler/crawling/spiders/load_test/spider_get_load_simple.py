@@ -1,12 +1,9 @@
 from __future__ import absolute_import
 
-import re
-import time
 from pathlib import Path
 
 from scrapy.spiders import Spider, Request
 
-from scrapy.exceptions import CloseSpider
 
 
 class GetLoad(Spider):

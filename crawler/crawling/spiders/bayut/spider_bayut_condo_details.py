@@ -21,7 +21,7 @@ from crawling.db.jpa.all_models import Client
 
 from crawling.db.models.apInfo import ApartmentInfo
 
-from crawling.objUtils import getChainValue, getNumberFromStr
+from crawling.objUtils import getNumberFromStr
 
 
 class BayoutCondoDetails(RedisSpider):
