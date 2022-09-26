@@ -48,4 +48,4 @@ ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
 
 # run the spider
 
-CMD ["python", "./crawling/spiders/startSpiders.py"]
+CMD ["python", "./crawling/spiders/utility-app/startSpiders.py"]

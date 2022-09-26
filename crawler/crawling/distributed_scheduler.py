@@ -434,7 +434,6 @@ class DistributedScheduler(object):
             "GLOBAL_PAGE_PER_DOMAIN_LIMIT_TIMEOUT", 600
         )
         domain_max_page_timeout = settings.get("DOMAIN_MAX_PAGE_TIMEOUT", 600)
-        logger.info("CCC")
         logger.info(global_page_per_domain_limit_timeout)
         return cls(
             server,

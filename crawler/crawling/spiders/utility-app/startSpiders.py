@@ -1,12 +1,12 @@
 import os
 import signal
 import time
-from flask import Flask
-
+from flask import Flask, Response, render_template
+from pygtail import Pygtail
 from crawling.mongo.models.SpiderStartConfig import SpiderStartConfig
 from crawling.mongo.mongoClient import mongoClient
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static/", template_folder="static/")
 
 import secrets
 
@@ -68,7 +68,40 @@ def addSpiderPid(spiderName, pid):
         currentSpiders[spiderName] = [pid]
 
 
-@app.route("/", methods=["GET"])
+def flask_logger():
+    """creates logging information"""
+    with open("/usr/src/crawler/logs/sc_crawler.log") as log_info:
+        for i in range(25):
+            data = log_info.read()
+            yield data.encode()
+            time.sleep(1)
+        # Create empty job.log, old logging will be deleted
+        # open("/usr/src/crawler/logs/sc_crawler.log", "w").close()
+
+
+@app.route("/log")
+def progress_log():
+    def generate():
+        for line in Pygtail("/usr/src/crawler/logs/sc_crawler.log", every_n=1):
+            yield "data:" + str(line) + "\n\n"
+            time.sleep(0.5)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/progress")
+def progress():
+    def generate():
+        x = 0
+        while x <= 100:
+            yield "data:" + str(x) + "\n\n"
+            x = x + 10
+            time.sleep(0.5)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/spiders", methods=["GET"])
 def getSpiders():
     return currentSpiders
 
@@ -81,6 +114,12 @@ def spawnSpider(spiderName):
 @app.route("/<spiderName>", methods=["DELETE"])
 def killSpider(spiderName):
     return killSpiderProc(spiderName)
+
+
+@app.route("/", methods=["GET"])
+def root():
+    """index page"""
+    return render_template("index.html")
 
 
 if __name__ == "__main__":
