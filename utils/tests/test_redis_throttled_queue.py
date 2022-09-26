@@ -1,6 +1,6 @@
-'''
+"""
 Offline utility tests
-'''
+"""
 from unittest import TestCase
 from mock import MagicMock
 from redis.exceptions import WatchError
@@ -8,7 +8,6 @@ from scutils.redis_throttled_queue import RedisThrottledQueue
 
 
 class TestUnmoderatedRedisThrottledQueue(TestCase):
-
     def setUp(self):
         # limit is 2 hits in the window
         self.queue = RedisThrottledQueue(MagicMock(), MagicMock(), 1, 2)
@@ -26,13 +25,11 @@ class TestUnmoderatedRedisThrottledQueue(TestCase):
         self.assertFalse(self.queue.allowed())
 
         # mock exception raised even with good hits
-        self.queue.redis_conn.zcard = MagicMock(return_value=0,
-                                                side_effect=WatchError)
+        self.queue.redis_conn.zcard = MagicMock(return_value=0, side_effect=WatchError)
         self.assertFalse(self.queue.allowed())
 
 
 class TestModeratedRedisThrottledQueue(TestCase):
-
     def setUp(self):
         self.queue = RedisThrottledQueue(MagicMock(), MagicMock(), 4, 2, True)
 
@@ -50,11 +47,12 @@ class TestModeratedRedisThrottledQueue(TestCase):
         self.queue.test_hits = MagicMock(side_effect=WatchError)
         self.assertFalse(self.queue.allowed())
 
-class TestModeratedElasticRedisThrottledQueue(TestCase):
 
+class TestModeratedElasticRedisThrottledQueue(TestCase):
     def setUp(self):
-        self.queue = RedisThrottledQueue(MagicMock(), MagicMock(), 4, 2, True,
-                                         elastic=True)
+        self.queue = RedisThrottledQueue(
+            MagicMock(), MagicMock(), 4, 2, True, elastic=True
+        )
 
     def test_moderated(self):
         # test elastic kick in hasnt happened yet

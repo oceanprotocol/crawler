@@ -1,6 +1,6 @@
-'''
+"""
 Offline utility tests
-'''
+"""
 from unittest import TestCase
 from scutils.argparse_helper import ArgparseHelper
 import argparse
@@ -9,10 +9,12 @@ import sys
 
 # from http://stackoverflow.com/questions/4219717/how-to-assert-output-with-nosetest-unittest-in-python
 from contextlib import contextmanager
+
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
+
 
 @contextmanager
 def captured_output():
@@ -26,30 +28,39 @@ def captured_output():
 
 
 class TestArgparseHelper(TestCase):
-
     def test_output(self):
-        parser = argparse.ArgumentParser(description='Desc here',
-        								 add_help=False)
-        parser.add_argument('-h', '--help', action=ArgparseHelper, help='show this help message and exit')
+        parser = argparse.ArgumentParser(description="Desc here", add_help=False)
+        parser.add_argument(
+            "-h",
+            "--help",
+            action=ArgparseHelper,
+            help="show this help message and exit",
+        )
 
-        subparsers = parser.add_subparsers(help='commands', dest='command')
+        subparsers = parser.add_subparsers(help="commands", dest="command")
 
         base_parser = argparse.ArgumentParser(add_help=False)
-        base_parser.add_argument('-s', '--settings', action='store',
-                                 required=False,
-                                 help="The settings file to read from",
-                                 default="localsettings.py")
+        base_parser.add_argument(
+            "-s",
+            "--settings",
+            action="store",
+            required=False,
+            help="The settings file to read from",
+            default="localsettings.py",
+        )
 
-        feed_parser = subparsers.add_parser('feed', help='Feed the script',
-                                            parents=[base_parser])
-        feed_parser.add_argument('json', help='The JSON object as a string')
+        feed_parser = subparsers.add_parser(
+            "feed", help="Feed the script", parents=[base_parser]
+        )
+        feed_parser.add_argument("json", help="The JSON object as a string")
 
-        run_parser = subparsers.add_parser('run', help='Run the script',
-                                           parents=[base_parser])
+        run_parser = subparsers.add_parser(
+            "run", help="Run the script", parents=[base_parser]
+        )
 
         a = ArgparseHelper(MagicMock())
 
-        expected = '''usage: nosetests [-h] {feed,run} ...
+        expected = """usage: nosetests [-h] {feed,run} ...
 
 Desc here
 
@@ -65,7 +76,7 @@ Command 'feed'
 usage: nosetests feed [-h] [-s SETTINGS] json
 
 Command 'run'
-usage: nosetests run [-h] [-s SETTINGS]'''
+usage: nosetests run [-h] [-s SETTINGS]"""
 
         try:
             with captured_output() as (out, err):

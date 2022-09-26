@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+
 class Repository:
     entity: object = NotImplementedError
     db: Session = NotImplementedError
@@ -18,8 +19,10 @@ class Repository:
 
     def find_by_id(self, id: int):
         return self.db.query(self.entity).filter(self.entity.id == id).first()
+
     def find_by_code(self, code: str):
         return self.db.query(self.entity).filter(self.entity.code == code).first()
+
     def get_actives(self):
         return self.db.query(self.entity).filter(self.entity.is_active == True)
 
@@ -27,17 +30,22 @@ class Repository:
         return self.db.query(self.entity).filter(self.entity.client_id == client_id)
 
     def get_actives_client_id(self, client_id: int):
-        return self.db.query(self.entity).filter \
-            (self.entity.is_active == True, self.entity.client_id == client_id)
+        return self.db.query(self.entity).filter(
+            self.entity.is_active == True, self.entity.client_id == client_id
+        )
 
-    def get_by_create_datetime_range(self, from_datetime: datetime, to_datetime: datetime):
-        data = self.db.query(self.entity).filter \
-            (self.entity.created_datetime >= from_datetime, \
-             self.entity.created_datetime <= to_datetime)
+    def get_by_create_datetime_range(
+        self, from_datetime: datetime, to_datetime: datetime
+    ):
+        data = self.db.query(self.entity).filter(
+            self.entity.created_datetime >= from_datetime,
+            self.entity.created_datetime <= to_datetime,
+        )
         return data
 
     def add(self, entity):
         self.db.add(entity)
+
     def addWithUser(self, entity, created_by_user_id: int = None):
         entity.created_by = created_by_user_id
         self.db.add(entity)

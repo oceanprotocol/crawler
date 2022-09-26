@@ -1,5 +1,6 @@
 from __future__ import print_function
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import object
 from kazoo.client import KazooClient, KazooState
@@ -9,6 +10,7 @@ import argparse
 import sys
 from time import sleep
 import logging
+
 log = logging.getLogger(__name__)
 
 
@@ -16,23 +18,31 @@ class ZookeeperWatcher(object):
     zoo_client = None  # The KazooClient to manage the config
     point_path = None  # Zookeeper path to pointed to file
     pointed_at_expired = None  # is True when the assignment has been set to
-                               # None but we cannot remove the config listener
+    # None but we cannot remove the config listener
     valid_handler = None  # the function to call when the validity changes
     config_handler = None  # the function to call when the config changes
     error_handler = None  # the function to call when an error occurs in reading
     valid_file = False  # the current state of the ConfigWatcher with ZK
     do_not_restart = False  # used when closing via ^C
-    old_data = ''  # The current file contents, to see if a change occurred
-    old_pointed = ''  # the current pointed path, to see if change occurred
+    old_data = ""  # The current file contents, to see if a change occurred
+    old_pointed = ""  # the current pointed path, to see if change occurred
 
     INVALID_PATH = "Invalid pointer path"
     INVALID_GET = "Invalid get on file path"
     BAD_CONNECTION = "Connection interrupted with Zookeeper, re-establishing"
 
-    def __init__(self, hosts, filepath, valid_handler=None,
-                 config_handler=None, error_handler=None, pointer=False,
-                 ensure=False, valid_init=True):
-        '''
+    def __init__(
+        self,
+        hosts,
+        filepath,
+        valid_handler=None,
+        config_handler=None,
+        error_handler=None,
+        pointer=False,
+        ensure=False,
+        valid_init=True,
+    ):
+        """
         Zookeeper file watcher, used to tell a program their zookeeper file has
         changed. Can be used to watch a single file, or both a file and path of
         its contents. Manages all connections, drops, reconnections for you.
@@ -58,7 +68,7 @@ class ZookeeperWatcher(object):
             True, otherwise clear your contents as there is some ZK error.
         Event:
             You will be notified via the various handlers when content changes.
-        '''
+        """
         self.hosts = hosts
         self.my_file = filepath
         self.pointer = pointer
@@ -75,27 +85,26 @@ class ZookeeperWatcher(object):
         self.threaded_start(no_init=True)
 
     def threaded_start(self, no_init=False):
-        '''
+        """
         Spawns a worker thread to set up the zookeeper connection
-        '''
-        thread = Thread(target=self.init_connections, kwargs={
-                        'no_init': no_init})
+        """
+        thread = Thread(target=self.init_connections, kwargs={"no_init": no_init})
         thread.setDaemon(True)
         thread.start()
         thread.join()
 
     def init_connections(self, no_init=False):
-        '''
+        """
         Sets up the initial Kazoo Client and watches
-        '''
+        """
         success = False
         self.set_valid(False)
 
         if not no_init:
             if self.zoo_client:
                 self.zoo_client.remove_listener(self.state_listener)
-                self.old_data = ''
-                self.old_pointed = ''
+                self.old_data = ""
+                self.old_pointed = ""
 
             while not success:
                 try:
@@ -121,19 +130,19 @@ class ZookeeperWatcher(object):
             self.update_file(self.my_file)
 
     def setup(self):
-        '''
+        """
         Ensures the path to the watched file exists and we have a state
         listener
-        '''
+        """
         self.zoo_client.add_listener(self.state_listener)
 
         if self.ensure:
             self.zoo_client.ensure_path(self.my_file)
 
     def state_listener(self, state):
-        '''
+        """
         Restarts the session if we get anything besides CONNECTED
-        '''
+        """
         if state == KazooState.SUSPENDED:
             self.set_valid(False)
             self.call_error(self.BAD_CONNECTION)
@@ -146,16 +155,16 @@ class ZookeeperWatcher(object):
             self.zoo_client.stop()
 
     def is_valid(self):
-        '''
+        """
         @return: True if the currently watch file is valid
-        '''
+        """
         return self.valid_file
 
     def ping(self):
-        '''
+        """
         Simple command to test if the zookeeper session is able to connect
         at this very moment
-        '''
+        """
         try:
             # dummy ping to ensure we are still connected
             self.zoo_client.server_version()
@@ -164,21 +173,21 @@ class ZookeeperWatcher(object):
             return False
 
     def close(self, kill_restart=True):
-        '''
+        """
         Use when you would like to close everything down
         @param kill_restart= Prevent kazoo restarting from occurring
-        '''
+        """
         self.do_not_restart = kill_restart
         self.zoo_client.stop()
         self.zoo_client.close()
 
     def get_file_contents(self, pointer=False):
-        '''
+        """
         Gets any file contents you care about. Defaults to the main file
         @param pointer: The the contents of the file pointer, not the pointed
         at file
         @return: A string of the contents
-        '''
+        """
         if self.pointer:
             if pointer:
                 return self.old_pointed
@@ -188,21 +197,21 @@ class ZookeeperWatcher(object):
             return self.old_data
 
     def watch_file(self, event):
-        '''
+        """
         Fired when changes made to the file
-        '''
+        """
         if not self.update_file(self.my_file):
             self.threaded_start()
 
     def update_file(self, path):
-        '''
+        """
         Updates the file watcher and calls the appropriate method for results
         @return: False if we need to keep trying the connection
-        '''
+        """
         try:
             # grab the file
             result, stat = self.zoo_client.get(path, watch=self.watch_file)
-            result = result.decode('utf-8')
+            result = result.decode("utf-8")
         except ZookeeperError:
             self.set_valid(False)
             self.call_error(self.INVALID_GET)
@@ -217,8 +226,8 @@ class ZookeeperWatcher(object):
                     self.update_pointed()
             else:
                 self.pointed_at_expired = True
-                self.old_pointed = ''
-                self.old_data = ''
+                self.old_pointed = ""
+                self.old_data = ""
                 self.set_valid(False)
                 self.call_error(self.INVALID_PATH)
         else:
@@ -230,23 +239,24 @@ class ZookeeperWatcher(object):
         return True
 
     def watch_pointed(self, event):
-        '''
+        """
         Fired when changes made to pointed file
-        '''
+        """
         self.update_pointed()
 
     def update_pointed(self):
-        '''
+        """
         Grabs the latest file contents based on the pointer uri
-        '''
+        """
         # only grab file if our pointer is still good (not None)
         if not self.pointed_at_expired:
             try:
-                conf_string, stat2 = self.zoo_client.get(self.point_path,
-                                                    watch=self.watch_pointed)
-                conf_string = conf_string.decode('utf-8')
+                conf_string, stat2 = self.zoo_client.get(
+                    self.point_path, watch=self.watch_pointed
+                )
+                conf_string = conf_string.decode("utf-8")
             except ZookeeperError:
-                self.old_data = ''
+                self.old_data = ""
                 self.set_valid(False)
                 self.pointed_at_expired = True
                 self.call_error(self.INVALID_PATH)
@@ -257,10 +267,10 @@ class ZookeeperWatcher(object):
             self.set_valid(True)
 
     def set_valid(self, boolean):
-        '''
+        """
         Sets the state and calls the change if needed
         @param bool: The state (true or false)
-        '''
+        """
         old_state = self.is_valid()
         self.valid_file = boolean
 
@@ -268,44 +278,44 @@ class ZookeeperWatcher(object):
             self.call_valid(self.valid_file)
 
     def call_valid(self, state):
-        '''
+        """
         Calls the valid change function passed in
         @param valid_state: The new config
-        '''
+        """
         if self.valid_handler is not None:
             self.valid_handler(self.is_valid())
 
     def call_config(self, new_config):
-        '''
+        """
         Calls the config function passed in
         @param new_config: The new config
-        '''
+        """
         if self.config_handler is not None:
             self.config_handler(new_config)
 
     def call_error(self, message):
-        '''
+        """
         Calls the error function passed in
         @param message: The message to throw
-        '''
+        """
         if self.error_handler is not None:
             self.error_handler(message)
 
     def compare_data(self, data):
-        '''
+        """
         Compares the string data
         @return: True if the data is different
-        '''
+        """
         if self.old_data != data:
             self.old_data = data
             return True
         return False
 
     def compare_pointer(self, data):
-        '''
+        """
         Compares the string data
         @return: True if the data is different
-        '''
+        """
         if self.old_pointed != data:
             self.old_pointed = data
             return True
@@ -313,33 +323,57 @@ class ZookeeperWatcher(object):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-            description="Zookeeper file watcher")
-    parser.add_argument('-z', '--zoo-keeper', action='store', required=True,
-                        help="The Zookeeper connection <host>:<port>")
-    parser.add_argument('-f', '--file', action='store', required=True,
-                        help="The full path to the file to watch in Zookeeper")
-    parser.add_argument('-p', '--pointer', action='store_const', const=True,
-                        help="The file contents point to another file")
-    parser.add_argument('-s', '--sleep', nargs='?', const=1, default=1,
-                        type=int, help="The time to sleep between poll checks")
-    parser.add_argument('-v', '--valid-init', action='store_false',
-                        help="Do not ensure zookeeper is up upon initial setup",
-                        default=True)
+    parser = argparse.ArgumentParser(description="Zookeeper file watcher")
+    parser.add_argument(
+        "-z",
+        "--zoo-keeper",
+        action="store",
+        required=True,
+        help="The Zookeeper connection <host>:<port>",
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        action="store",
+        required=True,
+        help="The full path to the file to watch in Zookeeper",
+    )
+    parser.add_argument(
+        "-p",
+        "--pointer",
+        action="store_const",
+        const=True,
+        help="The file contents point to another file",
+    )
+    parser.add_argument(
+        "-s",
+        "--sleep",
+        nargs="?",
+        const=1,
+        default=1,
+        type=int,
+        help="The time to sleep between poll checks",
+    )
+    parser.add_argument(
+        "-v",
+        "--valid-init",
+        action="store_false",
+        help="Do not ensure zookeeper is up upon initial setup",
+        default=True,
+    )
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--poll', action='store_true', help="Polling example")
-    group.add_argument('--event', action='store_true',
-                       help="Event driven example")
+    group.add_argument("--poll", action="store_true", help="Polling example")
+    group.add_argument("--event", action="store_true", help="Event driven example")
 
     args = vars(parser.parse_args())
 
-    hosts = args['zoo_keeper']
-    file = args['file']
-    pointer = args['pointer']
-    sleep_time = args['sleep']
-    poll = args['poll']
-    event = args['event']
-    valid = args['valid_init']
+    hosts = args["zoo_keeper"]
+    file = args["file"]
+    pointer = args["pointer"]
+    sleep_time = args["sleep"]
+    poll = args["poll"]
+    event = args["event"]
+    valid = args["valid_init"]
 
     def valid_file(state):
         print("The valid state is now", state)
@@ -355,20 +389,27 @@ def main():
         if poll:
             zoo_watcher = ZookeeperWatcher(hosts, file, pointer=True)
         elif event:
-            zoo_watcher = ZookeeperWatcher(hosts, file,
-                                           valid_handler=valid_file,
-                                           config_handler=change_file,
-                                           error_handler=error_file,
-                                           pointer=True, valid_init=valid)
+            zoo_watcher = ZookeeperWatcher(
+                hosts,
+                file,
+                valid_handler=valid_file,
+                config_handler=change_file,
+                error_handler=error_file,
+                pointer=True,
+                valid_init=valid,
+            )
     else:
         if poll:
             zoo_watcher = ZookeeperWatcher(hosts, file)
         elif event:
-            zoo_watcher = ZookeeperWatcher(hosts, file,
-                                           valid_handler=valid_file,
-                                           config_handler=change_file,
-                                           error_handler=error_file,
-                                           valid_init=valid)
+            zoo_watcher = ZookeeperWatcher(
+                hosts,
+                file,
+                valid_handler=valid_file,
+                config_handler=change_file,
+                error_handler=error_file,
+                valid_init=valid,
+            )
 
     try:
         while True:
@@ -379,6 +420,7 @@ def main():
     except:
         pass
     zoo_watcher.close()
+
 
 if __name__ == "__main__":
     sys.exit(main())

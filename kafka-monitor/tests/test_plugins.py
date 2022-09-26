@@ -1,6 +1,6 @@
-'''
+"""
 Offline tests
-'''
+"""
 
 import unittest
 from unittest import TestCase
@@ -8,6 +8,7 @@ from mock import MagicMock
 
 import sys
 from os import path
+
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from kafka_monitor import KafkaMonitor
@@ -22,8 +23,8 @@ from kafka.common import OffsetOutOfRangeError
 from jsonschema import Draft4Validator
 import tldextract
 
-class TestPlugins(TestCase):
 
+class TestPlugins(TestCase):
     def test_default_handler(self):
         handler = BaseHandler()
         try:
@@ -61,7 +62,7 @@ class TestPlugins(TestCase):
         # check timeout is added
         handler.redis_conn.zadd = MagicMock()
         handler.redis_conn.set = MagicMock(side_effect=AssertionError("expires"))
-        valid['expires'] = 124242
+        valid["expires"] = 124242
         try:
             handler.handle(valid)
             self.fail("Expires not called")
@@ -93,9 +94,9 @@ class TestPlugins(TestCase):
         handler.redis_conn.set = MagicMock(side_effect=AssertionError("added"))
 
         valid = {
-            "uuid":"abaksdjb",
-            "appid":"testapp",
-            "stats":"all",
+            "uuid": "abaksdjb",
+            "appid": "testapp",
+            "stats": "all",
         }
 
         try:
@@ -115,8 +116,8 @@ class TestPlugins(TestCase):
             "domain": "ebay.com",
             "action": "domain-update",
             "window": 15,
-            "hits":  10,
-            "scale": 1.0
+            "hits": 10,
+            "scale": 1.0,
         }
 
         try:

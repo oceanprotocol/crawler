@@ -45,7 +45,9 @@ from crawling.objUtils import getChainValue
 #     return result(obj)
 
 
-def selectSoupElement(propertyName: str,  soup:BeautifulSoup, filters: SoupSearchObj, chain: []):
+def selectSoupElement(
+    propertyName: str, soup: BeautifulSoup, filters: SoupSearchObj, chain: []
+):
     try:
         if filters.many == False:
             obj = soup.find(filters.mainElementTag, filters.criteria)

@@ -5,32 +5,38 @@ from pydantic import BaseModel, Field
 
 from crawling.mongo.models.PyObjectId import PyObjectId
 
+
 class PaginationType(str, Enum):
-    havePageNumGetMaxItems = 'havePageNumGetMaxItems'
-    replaceInURL = 'replaceInURL'
+    havePageNumGetMaxItems = "havePageNumGetMaxItems"
+    replaceInURL = "replaceInURL"
+
 
 class FieldType(str, Enum):
-    number = 'number'
-    string = 'string'
-    date = 'date'
+    number = "number"
+    string = "string"
+    date = "date"
+
 
 class Selectors(str, Enum):
-    pagination = 'pagination'
-    maxItemsPagination = 'maxItemsPagination'
-    condoElementLink = 'condoElementLink'
-    condoList = 'condoList'
+    pagination = "pagination"
+    maxItemsPagination = "maxItemsPagination"
+    condoElementLink = "condoElementLink"
+    condoList = "condoList"
+
 
 class SelectorType(str, Enum):
-    soup = 'soup'
-    jsSelector = 'jsSelector'
+    soup = "soup"
+    jsSelector = "jsSelector"
+
 
 class SelectorsValue(BaseModel):
-    value:  Optional[str]
+    value: Optional[str]
     getFirstElement: bool = Field(...)
-    classValue:  Optional[str]
+    classValue: Optional[str]
     titleValue: Optional[str]
-    selectElement:  Optional[str]
+    selectElement: Optional[str]
     type: SelectorType
+
 
 class PaginationSettings(BaseModel):
     url: Optional[str] = Field(...)
@@ -43,12 +49,13 @@ class FieldInfo(BaseModel):
     fieldType: FieldType
     fieldSelector: str = Field(...)
 
+
 class SourceSettings(BaseModel):
     havePagination: bool = Field(...)
     haveInfiniteScroll: bool = Field(...)
     haveHTTP: bool = Field(...)
     flow: List[str]
-    paginationSettings:  Optional[PaginationSettings]
+    paginationSettings: Optional[PaginationSettings]
     selectors: Dict[Selectors, SelectorsValue]
 
 
@@ -62,4 +69,3 @@ class CrawlerConfig(BaseModel):
     fields: List[FieldInfo]
     sourceSettings: SourceSettings
     flowTimeouts: Optional[Dict[str, float]]
-

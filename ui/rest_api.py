@@ -1,17 +1,20 @@
 # class for interacting with the Scrapy Cluster REST API
 import requests
-from requests.exceptions import RequestException, \
-                                ConnectionError, \
-                                Timeout, \
-                                TooManyRedirects
+from requests.exceptions import (
+    RequestException,
+    ConnectionError,
+    Timeout,
+    TooManyRedirects,
+)
 
 from scutils.log_factory import LogFactory
 
+
 class SCRestAPI(object):
 
-    _index_path = '/'
-    _feed_path = '/feed'
-    _poll_path = '/poll'
+    _index_path = "/"
+    _feed_path = "/feed"
+    _poll_path = "/poll"
 
     def __init__(self, endpoint, timeout=3.05, read_timeout=10):
         self._endpoint = endpoint
@@ -19,20 +22,19 @@ class SCRestAPI(object):
         self._read_timeout = read_timeout
 
         # negate because logger wants True for std out
-        self.logger = LogFactory.get_instance(
-                                         )
+        self.logger = LogFactory.get_instance()
 
-
-    def _send_request(self, method='GET', path=_index_path, data=None):
+    def _send_request(self, method="GET", path=_index_path, data=None):
         error = None
         self.logger.info(self._endpoint + path)
         self.logger.info(data)
         try:
-            req = requests.request(method=method,
-                                   url=self._endpoint + path,
-                                   json=data,
-                                   timeout=(self._timeout,
-                                            self._read_timeout))
+            req = requests.request(
+                method=method,
+                url=self._endpoint + path,
+                json=data,
+                timeout=(self._timeout, self._read_timeout),
+            )
             data = req.json()
             return data
 
@@ -47,13 +49,7 @@ class SCRestAPI(object):
         except ValueError:
             error = "JSON Decoding Error"
 
-        final_result = {
-            "status": "FAILURE",
-            "data": None,
-            "error": {
-                "message": error
-            }
-        }
+        final_result = {"status": "FAILURE", "data": None, "error": {"message": error}}
         return final_result
 
     def index(self):
@@ -69,18 +65,10 @@ class SCRestAPI(object):
         Feeds JSON data into the feed endpoint
         """
         self.logger.info(self._feed_path)
-        return self._send_request(method='POST', path=self._feed_path,
-                                  data=data)
+        return self._send_request(method="POST", path=self._feed_path, data=data)
 
     def poll(self, data=None):
         """
         Feeds JSON data into the poll endpoint
         """
-        return self._send_request(method='POST', path=self._poll_path,
-                                  data=data)
-
-
-
-
-
-
+        return self._send_request(method="POST", path=self._poll_path, data=data)

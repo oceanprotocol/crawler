@@ -26,7 +26,7 @@ class TestAdminUIService(TestCase):
     def setUp(self):
         self.admin_ui_service = AdminUIService("localsettings.py")
         self.admin_ui_service.setup()
-        self.admin_ui_service.settings['FLASK_PORT'] = self.port_number
+        self.admin_ui_service.settings["FLASK_PORT"] = self.port_number
 
         def run_server():
             self.admin_ui_service.run()
@@ -39,12 +39,13 @@ class TestAdminUIService(TestCase):
         time.sleep(10)
 
     def test_status(self):
-        r = requests.get('http://127.0.0.1:{p}'.format(p=self.port_number))
+        r = requests.get("http://127.0.0.1:{p}".format(p=self.port_number))
         results = r.content
         self.assertIn(b"<title>Scrapy Cluster</title>", results)
 
     def tearDown(self):
         self.admin_ui_service.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

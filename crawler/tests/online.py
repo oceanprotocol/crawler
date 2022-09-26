@@ -1,8 +1,9 @@
-'''
+"""
 Online link spider test
-'''
+"""
 from __future__ import print_function
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import next
 import unittest
@@ -12,6 +13,7 @@ import datetime
 
 import sys
 from os import path
+
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 import scrapy
@@ -27,35 +29,42 @@ from kafka import KafkaConsumer
 
 
 class CustomSpider(LinkSpider):
-    '''
+    """
     Overridden link spider for testing
-    '''
+    """
+
     name = "test-spider"
 
 
 class TestLinkSpider(TestCase):
 
-    example_feed = "{\"allowed_domains\":null,\"allow_regex\":null,\""\
-        "crawlid\":\"abc12345\",\"url\":\"http://books.toscrape.com/\",\"expires\":0,\""\
-        "ts\":1461549923.7956631184,\"priority\":1,\"deny_regex\":null,\""\
-        "cookie\":null,\"attrs\":null,\"appid\":\"test\",\"spiderid\":\""\
-        "test-spider\",\"useragent\":null,\"deny_extensions\":null,\"maxdepth\":0, \"domain_max_pages\":0}"
+    example_feed = (
+        '{"allowed_domains":null,"allow_regex":null,"'
+        'crawlid":"abc12345","url":"http://books.toscrape.com/","expires":0,"'
+        'ts":1461549923.7956631184,"priority":1,"deny_regex":null,"'
+        'cookie":null,"attrs":null,"appid":"test","spiderid":"'
+        'test-spider","useragent":null,"deny_extensions":null,"maxdepth":0, "domain_max_pages":0}'
+    )
 
-    example_feed_max = "{\"allowed_domains\":[\"toscrape.com\"],\"allow_regex\":null,\""\
-        "crawlid\":\"abc1234567\",\"url\":\"http://books.toscrape.com/\",\"expires\":0,\""\
-        "ts\":1461549923.7956631184,\"priority\":1,\"deny_regex\":null,\""\
-        "cookie\":null,\"attrs\":null,\"appid\":\"test\",\"spiderid\":\""\
-        "test-spider\",\"useragent\":null,\"deny_extensions\":null,\"maxdepth\":3, \"domain_max_pages\":4}"
+    example_feed_max = (
+        '{"allowed_domains":["toscrape.com"],"allow_regex":null,"'
+        'crawlid":"abc1234567","url":"http://books.toscrape.com/","expires":0,"'
+        'ts":1461549923.7956631184,"priority":1,"deny_regex":null,"'
+        'cookie":null,"attrs":null,"appid":"test","spiderid":"'
+        'test-spider","useragent":null,"deny_extensions":null,"maxdepth":3, "domain_max_pages":4}'
+    )
 
     def setUp(self):
         self.settings = get_project_settings()
-        self.settings.set('KAFKA_TOPIC_PREFIX', "demo_test")
+        self.settings.set("KAFKA_TOPIC_PREFIX", "demo_test")
         # set up redis
-        self.redis_conn = redis.Redis(host=self.settings['REDIS_HOST'],
-                                      port=self.settings['REDIS_PORT'],
-                                      db=self.settings['REDIS_DB'],
-                                      password=self.settings['REDIS_PASSWORD'],
-                                      decode_responses=True)
+        self.redis_conn = redis.Redis(
+            host=self.settings["REDIS_HOST"],
+            port=self.settings["REDIS_PORT"],
+            db=self.settings["REDIS_DB"],
+            password=self.settings["REDIS_PASSWORD"],
+            decode_responses=True,
+        )
         try:
             self.redis_conn.info()
         except ConnectionError:
@@ -71,13 +80,13 @@ class TestLinkSpider(TestCase):
         # set up kafka to consumer potential result
         self.consumer = KafkaConsumer(
             "demo_test.crawled_firehose",
-            bootstrap_servers=self.settings['KAFKA_HOSTS'],
+            bootstrap_servers=self.settings["KAFKA_HOSTS"],
             group_id="demo-id",
             auto_commit_interval_ms=10,
             api_version=(0, 10, 1),
             consumer_timeout_ms=5000,
-            auto_offset_reset='earliest',
-            value_deserializer=lambda m: m.decode('utf-8')
+            auto_offset_reset="earliest",
+            value_deserializer=lambda m: m.decode("utf-8"),
         )
         time.sleep(1)
 
@@ -119,19 +128,23 @@ class TestLinkSpider(TestCase):
             else:
                 the_dict = json.loads(m.value)
                 if the_dict is not None:
-                    if the_dict['appid'] == 'test' \
-                            and the_dict['crawlid'] == 'abc1234567':
+                    if (
+                        the_dict["appid"] == "test"
+                        and the_dict["crawlid"] == "abc1234567"
+                    ):
                         max_message_count += 1
-                    elif the_dict['appid'] == 'test' \
-                            and the_dict['crawlid'] == 'abc12345':
+                    elif (
+                        the_dict["appid"] == "test"
+                        and the_dict["crawlid"] == "abc12345"
+                    ):
                         message_count += 1
 
         self.assertEqual(message_count, 1)
         self.assertEqual(max_message_count, 4)
 
     def tearDown(self):
-        keys = self.redis_conn.keys('stats:crawler:*:test-spider:*')
-        keys = keys + self.redis_conn.keys('test-spider:*')
+        keys = self.redis_conn.keys("stats:crawler:*:test-spider:*")
+        keys = keys + self.redis_conn.keys("test-spider:*")
         for key in keys:
             self.redis_conn.delete(key)
 
@@ -141,5 +154,6 @@ class TestLinkSpider(TestCase):
             pass
         self.consumer.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

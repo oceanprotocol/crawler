@@ -1,6 +1,6 @@
-'''
+"""
 Offline tests
-'''
+"""
 from unittest import TestCase
 from mock import MagicMock
 from crawling.redis_global_page_per_domain_filter import RFGlobalPagePerDomainFilter
@@ -9,14 +9,13 @@ from scrapy.http import Request
 
 
 class TestRedisPagePerDomainFilter(TestCase):
-
     def setUp(self):
-        self.global_limit = RFGlobalPagePerDomainFilter(MagicMock(), 'key', 5, 600)
-        self.per_domain_limit = RFDomainMaxPageFilter(MagicMock(), 'key', 600)
+        self.global_limit = RFGlobalPagePerDomainFilter(MagicMock(), "key", 5, 600)
+        self.per_domain_limit = RFDomainMaxPageFilter(MagicMock(), "key", 600)
 
     def test_global_page_per_domain_filter(self):
-        req = Request('http://example.com')
-        req.meta['crawlid'] = "abc123"
+        req = Request("http://example.com")
+        req.meta["crawlid"] = "abc123"
 
         self.global_limit.server.expire = MagicMock()
 
@@ -29,9 +28,9 @@ class TestRedisPagePerDomainFilter(TestCase):
         self.assertTrue(self.global_limit.request_page_limit_reached(req, None))
 
     def test_domain_max_page_filter(self):
-        req = Request('http://example.com')
-        req.meta['crawlid'] = "abc123"
-        req.meta['domain_max_pages'] = 5
+        req = Request("http://example.com")
+        req.meta["crawlid"] = "abc123"
+        req.meta["domain_max_pages"] = 5
 
         self.per_domain_limit.server.expire = MagicMock()
 

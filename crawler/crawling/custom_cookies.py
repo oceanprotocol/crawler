@@ -2,13 +2,13 @@ from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
 
 
 class CustomCookiesMiddleware(CookiesMiddleware):
-    '''
+    """
     Custom Cookies Middleware to pass our required cookies along but not
     persist between calls
-    '''
+    """
 
     def process_request(self, request, spider):
-        if 'dont_merge_cookies' in request.meta:
+        if "dont_merge_cookies" in request.meta:
             return
 
         cookiejarkey = request.meta.get("cookiejar")
@@ -19,7 +19,7 @@ class CustomCookiesMiddleware(CookiesMiddleware):
             jar.set_cookie_if_ok(cookie, request)
 
         # set Cookie header
-        request.headers.pop('Cookie', None)
+        request.headers.pop("Cookie", None)
         jar.add_cookie_header(request)
 
         self._debug_cookie(request, spider)

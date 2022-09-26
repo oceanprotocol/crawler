@@ -9,12 +9,10 @@ from crawling.flowUtils import generateNextSpider
 from crawling.models.nextSpidersInfo import NextSpidersInfo
 
 
-
 class RedisSpider(Spider):
-    '''
+    """
     Base Spider for doing distributed crawls coordinated through Redis
-    '''
-
+    """
 
     # def start_requests(self):
     #     for url in self.start_urls:
@@ -23,29 +21,26 @@ class RedisSpider(Spider):
 
     def _set_crawler(self, crawler):
         super(RedisSpider, self)._set_crawler(crawler)
-        self.crawler.signals.connect(self.spider_idle,
-                                     signal=signals.spider_idle)
+        self.crawler.signals.connect(self.spider_idle, signal=signals.spider_idle)
 
     def spider_idle(self):
         raise DontCloseSpider
 
     def parse(self, response):
-        '''
+        """
         Parse a page of html, and yield items into the item pipeline
 
         @param response: The response object of the scrape
-        '''
+        """
         raise NotImplementedError("Please implement parse() for your spider")
 
-
     def set_logger(self, logger):
-        '''
+        """
         Set the logger for the spider, different than the default Scrapy one
 
         @param logger: the logger from the scheduler
-        '''
+        """
         self._logger = logger
-
 
     def reconstruct_headers(self, response):
         """

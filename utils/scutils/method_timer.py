@@ -1,7 +1,9 @@
 from builtins import object
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import signal
+
 """
 A timer class so methods can only execute for a certain amount of seconds,
 then returns the default value
@@ -12,7 +14,7 @@ then returns the default value
 
 
 class MethodTimer(object):
-    '''
+    """
     -------------------------------------
     Initial code from http://pguides.net/python-tutorial/python-timeout-a-function/
     Minor modifications made to work
@@ -21,20 +23,22 @@ class MethodTimer(object):
     Use above your function definition:
         @MethodTimer.timeout(seconds_to_wait, default_return_value)
         def myfunc(params):
-    '''
+    """
 
     class DecoratorTimeout(Exception):
-        '''
+        """
         Simple class in order to raise exception
-        '''
+        """
+
         pass
 
     @staticmethod
     def timeout(timeout_time, default):
-        '''
+        """
         Decorate a method so it is required to execute in a given time period,
         or return a default value.
-        '''
+        """
+
         def timeout_function(f):
             def f2(*args):
                 def timeout_handler(signum, frame):
@@ -51,10 +55,14 @@ class MethodTimer(object):
                     signal.signal(signal.SIGALRM, old_handler)
                 signal.alarm(0)
                 return retval
+
             return f2
+
         return timeout_function
-    '''
+
+    """
     -------------------------------------
-    '''
+    """
+
     def __init__(self):
         pass

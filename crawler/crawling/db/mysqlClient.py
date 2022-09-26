@@ -6,10 +6,11 @@ import importlib
 
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from .jpa import *
+
 engine = create_engine(os.getenv("SQL_CON"))
-db_session  = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
+db_session = scoped_session(
+    sessionmaker(autocommit=False, autoflush=False, bind=engine)
+)
 
 
 dbM = declarative_base()

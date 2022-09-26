@@ -18,8 +18,8 @@ class APIRequest(object):
     """
 
     def __init__(self, base_url, headers=None):
-        if not base_url.endswith('/'):
-            base_url += '/'
+        if not base_url.endswith("/"):
+            base_url += "/"
         self._base_url = base_url
 
         if headers is not None:
@@ -30,45 +30,45 @@ class APIRequest(object):
     def __call__(self, method, route, **kwargs):
 
         # Account for flask-like routes
-        if route.startswith('/'):
+        if route.startswith("/"):
             route = route[1:]
 
         url = urljoin(self._base_url, route, allow_fragments=False)
 
-        headers = kwargs.pop('headers', {})
+        headers = kwargs.pop("headers", {})
         headers.update(self._headers)
 
         response = requests.request(method=method, url=url, headers=headers, **kwargs)
 
-        if 'data' in kwargs:
-            log.info(u'{} {} with headers:\n{}\nand data:\n{}'.format(
-                method,
-                url,
-                json.dumps(headers, indent=4),
-                json.dumps(kwargs['data'], indent=4)
-            ))
-        elif 'json' in kwargs:
-            log.info(u'{} {} with headers:\n{}\nand JSON:\n{}'.format(
-                method,
-                url,
-                json.dumps(headers, indent=4),
-                json.dumps(kwargs['json'], indent=4)
-            ))
+        if "data" in kwargs:
+            log.info(
+                "{} {} with headers:\n{}\nand data:\n{}".format(
+                    method,
+                    url,
+                    json.dumps(headers, indent=4),
+                    json.dumps(kwargs["data"], indent=4),
+                )
+            )
+        elif "json" in kwargs:
+            log.info(
+                "{} {} with headers:\n{}\nand JSON:\n{}".format(
+                    method,
+                    url,
+                    json.dumps(headers, indent=4),
+                    json.dumps(kwargs["json"], indent=4),
+                )
+            )
         else:
-            log.info(u'{} {} with headers:\n{}'.format(
-                method,
-                url,
-                json.dumps(headers, indent=4)
-            ))
+            log.info(
+                "{} {} with headers:\n{}".format(
+                    method, url, json.dumps(headers, indent=4)
+                )
+            )
 
         log.info(
-            u'Response to {} {} => {} {}\n{}'.format(
-                method,
-                url,
-                response.status_code,
-                response.reason,
-                response.text[:100])
+            "Response to {} {} => {} {}\n{}".format(
+                method, url, response.status_code, response.reason, response.text[:100]
+            )
         )
 
         return response
-

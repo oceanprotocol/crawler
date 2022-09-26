@@ -10,16 +10,18 @@ class StatsHandler(BaseHandler):
     schema = "stats_schema.json"
 
     def setup(self, settings):
-        '''
+        """
         Setup redis and tldextract
-        '''
-        self.redis_conn = redis.Redis(host=settings['REDIS_HOST'],
-                                      port=settings['REDIS_PORT'],
-                                      db=settings.get('REDIS_DB'),
-                                      password=settings['REDIS_PASSWORD'],
-                                      decode_responses=True,
-                                      socket_timeout=settings.get('REDIS_SOCKET_TIMEOUT'),
-                                      socket_connect_timeout=settings.get('REDIS_SOCKET_TIMEOUT'))
+        """
+        self.redis_conn = redis.Redis(
+            host=settings["REDIS_HOST"],
+            port=settings["REDIS_PORT"],
+            db=settings.get("REDIS_DB"),
+            password=settings["REDIS_PASSWORD"],
+            decode_responses=True,
+            socket_timeout=settings.get("REDIS_SOCKET_TIMEOUT"),
+            socket_connect_timeout=settings.get("REDIS_SOCKET_TIMEOUT"),
+        )
 
         try:
             self.redis_conn.info()
@@ -30,18 +32,18 @@ class StatsHandler(BaseHandler):
             sys.exit(1)
 
     def handle(self, dict):
-        '''
+        """
         Processes a vaild stats request
 
         @param dict: a valid dictionary object
-        '''
+        """
         # format key
         key = "statsrequest:{stats}:{appid}".format(
-                stats=dict['stats'],
-                appid=dict['appid'])
+            stats=dict["stats"], appid=dict["appid"]
+        )
 
-        self.redis_conn.set(key, dict['uuid'])
+        self.redis_conn.set(key, dict["uuid"])
 
-        dict['parsed'] = True
-        dict['valid'] = True
-        self.logger.info('Added stat request to Redis', extra=dict)
+        dict["parsed"] = True
+        dict["valid"] = True
+        self.logger.info("Added stat request to Redis", extra=dict)

@@ -21,8 +21,8 @@ from rest_api import SCRestAPI
 class AdminUIService(object):
 
     # static strings
-    SUCCESS = 'SUCCESS'
-    FAILURE = 'FAILURE'
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
     start_time = 0
     closed = False
     _initiate_stats_req_thread = None
@@ -35,8 +35,8 @@ class AdminUIService(object):
         self.wrapper = SettingsWrapper()
         self.logger = None
         self.app = Flask(__name__)
-        self.app.secret_key = 'some_secret12'
-        self.my_uuid = str(uuid.uuid4()).split('-')[4]
+        self.app.secret_key = "some_secret12"
+        self.my_uuid = str(uuid.uuid4()).split("-")[4]
         self.appid = Flask(__name__).name
         self.pollids_km = deque([])
         self.pollids_rm = deque([])
@@ -54,20 +54,23 @@ class AdminUIService(object):
         """
         self.settings = self.wrapper.load(self.settings_name)
 
-        my_level = level if level else self.settings['LOG_LEVEL']
+        my_level = level if level else self.settings["LOG_LEVEL"]
         # negate because logger wants True for std out
-        my_output = not log_file if log_file else self.settings['LOG_STDOUT']
-        my_json = json if json else self.settings['LOG_JSON']
-        self.logger = LogFactory.get_instance(json=my_json, stdout=my_output,
-                                              level=my_level,
-                                              name=self.settings['LOGGER_NAME'],
-                                              dir=self.settings['LOG_DIR'],
-                                              file=self.settings['LOG_FILE'],
-                                              bytes=self.settings['LOG_MAX_BYTES'],
-                                              backups=self.settings['LOG_BACKUPS'])
+        my_output = not log_file if log_file else self.settings["LOG_STDOUT"]
+        my_json = json if json else self.settings["LOG_JSON"]
+        self.logger = LogFactory.get_instance(
+            json=my_json,
+            stdout=my_output,
+            level=my_level,
+            name=self.settings["LOGGER_NAME"],
+            dir=self.settings["LOG_DIR"],
+            file=self.settings["LOG_FILE"],
+            bytes=self.settings["LOG_MAX_BYTES"],
+            backups=self.settings["LOG_BACKUPS"],
+        )
         self._decorate_routes()
 
-        self._rest_api = SCRestAPI(endpoint=self.settings['REST_HOST'])
+        self._rest_api = SCRestAPI(endpoint=self.settings["REST_HOST"])
 
         self._initiate_stats_req_thread = Thread(target=self._initiate_stats_req_loop)
         self._initiate_stats_req_thread.setDaemon(True)
@@ -75,24 +78,24 @@ class AdminUIService(object):
 
         self.start_time = self.get_time()
 
-        self.stats['kafka-monitor'] = {}
-        self.stats['kafka-monitor']['total'] = []
-        self.stats['kafka-monitor']['fail'] = []
+        self.stats["kafka-monitor"] = {}
+        self.stats["kafka-monitor"]["total"] = []
+        self.stats["kafka-monitor"]["fail"] = []
 
-        self.stats['redis-monitor'] = {}
-        self.stats['redis-monitor']['total'] = []
-        self.stats['redis-monitor']['fail'] = []
+        self.stats["redis-monitor"] = {}
+        self.stats["redis-monitor"]["total"] = []
+        self.stats["redis-monitor"]["fail"] = []
 
-        self.stats['queue'] = {}
-        self.stats['queue']['total_backlog'] = []
+        self.stats["queue"] = {}
+        self.stats["queue"]["total_backlog"] = []
 
         self.km_previous_total = 0
         self.rm_previous_total = 0
         self.km_previous_fail = 0
 
         # disable flask logger
-        if self.settings['FLASK_LOGGING_ENABLED'] == False:
-            log = logging.getLogger('werkzeug')
+        if self.settings["FLASK_LOGGING_ENABLED"] == False:
+            log = logging.getLogger("werkzeug")
             log.disabled = True
 
     def get_time(self):
@@ -103,18 +106,24 @@ class AdminUIService(object):
         """
         Main flask run loop
         """
-        self.logger.info("Running main flask method on port " + str(self.settings['FLASK_PORT']))
-        self.app.run(host='0.0.0.0', port=self.settings['FLASK_PORT'], debug=self.settings['DEBUG'])
+        self.logger.info(
+            "Running main flask method on port " + str(self.settings["FLASK_PORT"])
+        )
+        self.app.run(
+            host="0.0.0.0",
+            port=self.settings["FLASK_PORT"],
+            debug=self.settings["DEBUG"],
+        )
 
     # Declare table which is sent to client
     class ItemTable(Table):
-        classes = ['table', 'table-striped']
-        timestamp = DatetimeCol('timestamp')
-        total_requests = Col('total_requests')
+        classes = ["table", "table-striped"]
+        timestamp = DatetimeCol("timestamp")
+        total_requests = Col("total_requests")
 
     def _initiate_stats_req_loop(self):
         self.logger.info("running stats req loop thread")
-        time.sleep(self.settings['STAT_START_DELAY'])
+        time.sleep(self.settings["STAT_START_DELAY"])
 
         while not self.closed:
             try:
@@ -132,13 +141,13 @@ class AdminUIService(object):
                     self._crawler_stats_poll()
 
             except Exception:
-                self.logger.error("Uncaught Exception", {
-                                    'ex': traceback.format_exc()
-                                  })
+                self.logger.error("Uncaught Exception", {"ex": traceback.format_exc()})
 
             self.logger.debug("stats thread sleeping")
             t1 = datetime.datetime.now()
-            while (datetime.datetime.now() - t1).seconds < self.settings['STAT_REQ_FREQ'] and not self.closed:
+            while (datetime.datetime.now() - t1).seconds < self.settings[
+                "STAT_REQ_FREQ"
+            ] and not self.closed:
                 time.sleep(1)
 
     def _kafka_stats(self):
@@ -148,29 +157,33 @@ class AdminUIService(object):
         res = self._rest_api.feed(data=data)
         self.logger.info(res)
         self.logger.info("kafka monitor stats generated poll id")
-        if 'poll_id' in res:
+        if "poll_id" in res:
             self.logger.info("kafka monitor stats generated poll id")
-            pollid = res['poll_id']
+            pollid = res["poll_id"]
             self.pollids_km.append(pollid)
-        elif res['status'] == 'SUCCESS':
+        elif res["status"] == "SUCCESS":
             self.logger.info("kafka monitor stats got result")
             dt = datetime.datetime.now()
-            if 'total' in res['data']:
-                current_total = res['data']['total']['lifetime']
+            if "total" in res["data"]:
+                current_total = res["data"]["total"]["lifetime"]
                 total = current_total - self.km_previous_total
                 self.km_previous_total = current_total
-                reading = {'ts': dt, 'value': total}
+                reading = {"ts": dt, "value": total}
 
-                self.stats['kafka-monitor']['total'].append(reading)
-                self.stats['kafka-monitor']['total'] = self.stats['kafka-monitor']['total'][:10]
-            if 'fail' in res['data']:
-                current_total = res['data']['fail']['lifetime']
+                self.stats["kafka-monitor"]["total"].append(reading)
+                self.stats["kafka-monitor"]["total"] = self.stats["kafka-monitor"][
+                    "total"
+                ][:10]
+            if "fail" in res["data"]:
+                current_total = res["data"]["fail"]["lifetime"]
                 total = current_total - self.km_previous_fail
                 self.km_previous_fail = current_total
-                reading = {'ts': dt, 'value': total}
+                reading = {"ts": dt, "value": total}
 
-                self.stats['kafka-monitor']['fail'].append(reading)
-                self.stats['kafka-monitor']['fail'] = self.stats['kafka-monitor']['fail'][:10]
+                self.stats["kafka-monitor"]["fail"].append(reading)
+                self.stats["kafka-monitor"]["fail"] = self.stats["kafka-monitor"][
+                    "fail"
+                ][:10]
 
     def _kafka_stats_poll(self):
         while self.pollids_km:
@@ -183,22 +196,26 @@ class AdminUIService(object):
                 self.pollids_km.appendleft(pollid)
             else:
                 dt = datetime.datetime.now()
-                if 'total' in res['data']:
-                    current_total = res['data']['total']['lifetime']
+                if "total" in res["data"]:
+                    current_total = res["data"]["total"]["lifetime"]
                     total = current_total - self.km_previous_total
                     self.km_previous_total = current_total
-                    reading = {'ts': dt, 'value': total}
+                    reading = {"ts": dt, "value": total}
 
-                    self.stats['kafka-monitor']['total'].append(reading)
-                    self.stats['kafka-monitor']['total'] = self.stats['kafka-monitor']['total'][:10]
-                if 'fail' in res['data']:
-                    current_total = res['data']['fail']['lifetime']
+                    self.stats["kafka-monitor"]["total"].append(reading)
+                    self.stats["kafka-monitor"]["total"] = self.stats["kafka-monitor"][
+                        "total"
+                    ][:10]
+                if "fail" in res["data"]:
+                    current_total = res["data"]["fail"]["lifetime"]
                     total = current_total - self.km_previous_fail
                     self.km_previous_fail = current_total
-                    reading = {'ts': dt, 'value': total}
+                    reading = {"ts": dt, "value": total}
 
-                    self.stats['kafka-monitor']['fail'].append(reading)
-                    self.stats['kafka-monitor']['fail'] = self.stats['kafka-monitor']['fail'][:10]
+                    self.stats["kafka-monitor"]["fail"].append(reading)
+                    self.stats["kafka-monitor"]["fail"] = self.stats["kafka-monitor"][
+                        "fail"
+                    ][:10]
 
     def _redis_stats(self):
         self.logger.debug("collecting redis monitor stats poll")
@@ -206,29 +223,33 @@ class AdminUIService(object):
 
         res = self._rest_api.feed(data=data)
 
-        if 'poll_id' in res:
+        if "poll_id" in res:
             self.logger.debug("redis monitor stats generated poll id")
-            pollid = res['poll_id']
+            pollid = res["poll_id"]
             self.pollids_rm.append(pollid)
-        elif res['status'] == 'SUCCESS':
+        elif res["status"] == "SUCCESS":
             self.logger.debug("redis monitor stats got result")
             dt = datetime.datetime.now()
-            if 'total' in res['data']:
-                current_total = res['data']['total']['lifetime']
+            if "total" in res["data"]:
+                current_total = res["data"]["total"]["lifetime"]
                 total = current_total - self.km_previous_total
                 self.km_previous_total = current_total
-                reading = {'ts': dt, 'value': total}
+                reading = {"ts": dt, "value": total}
 
-                self.stats['redis-monitor']['total'].append(reading)
-                self.stats['redis-monitor']['total'] = self.stats['redis-monitor']['total'][:10]
-            if 'fail' in res['data']:
-                current_total = res['data']['fail']['lifetime']
+                self.stats["redis-monitor"]["total"].append(reading)
+                self.stats["redis-monitor"]["total"] = self.stats["redis-monitor"][
+                    "total"
+                ][:10]
+            if "fail" in res["data"]:
+                current_total = res["data"]["fail"]["lifetime"]
                 total = current_total - self.km_previous_fail
                 self.km_previous_fail = current_total
-                reading = {'ts': dt, 'value': total}
+                reading = {"ts": dt, "value": total}
 
-                self.stats['redis-monitor']['fail'].append(reading)
-                self.stats['redis-monitor']['fail'] = self.stats['redis-monitor']['fail'][:10]
+                self.stats["redis-monitor"]["fail"].append(reading)
+                self.stats["redis-monitor"]["fail"] = self.stats["redis-monitor"][
+                    "fail"
+                ][:10]
 
     def _redis_stats_poll(self):
         while self.pollids_rm:
@@ -241,22 +262,26 @@ class AdminUIService(object):
                 self.pollids_rm.appendleft(pollid)
             else:
                 dt = datetime.datetime.now()
-                if 'total' in res['data']:
-                    current_total = res['data']['total']['lifetime']
+                if "total" in res["data"]:
+                    current_total = res["data"]["total"]["lifetime"]
                     total = current_total - self.km_previous_total
                     self.km_previous_total = current_total
-                    reading = {'ts': dt, 'value': total}
+                    reading = {"ts": dt, "value": total}
 
-                    self.stats['redis-monitor']['total'].append(reading)
-                    self.stats['redis-monitor']['total'] = self.stats['redis-monitor']['total'][:10]
-                if 'fail' in res['data']:
-                    current_total = res['data']['fail']['lifetime']
+                    self.stats["redis-monitor"]["total"].append(reading)
+                    self.stats["redis-monitor"]["total"] = self.stats["redis-monitor"][
+                        "total"
+                    ][:10]
+                if "fail" in res["data"]:
+                    current_total = res["data"]["fail"]["lifetime"]
                     total = current_total - self.km_previous_fail
                     self.km_previous_fail = current_total
-                    reading = {'ts': dt, 'value': total}
+                    reading = {"ts": dt, "value": total}
 
-                    self.stats['redis-monitor']['fail'].append(reading)
-                    self.stats['redis-monitor']['fail'] = self.stats['redis-monitor']['fail'][:10]
+                    self.stats["redis-monitor"]["fail"].append(reading)
+                    self.stats["redis-monitor"]["fail"] = self.stats["redis-monitor"][
+                        "fail"
+                    ][:10]
 
     def _crawler_stats(self):
         self.logger.debug("collecting crawler stats")
@@ -264,17 +289,19 @@ class AdminUIService(object):
 
         res = self._rest_api.feed(data=data)
 
-        if 'poll_id' in res:
+        if "poll_id" in res:
             self.logger.debug("crawler stats generated poll id")
-            pollid = res['poll_id']
+            pollid = res["poll_id"]
             self.pollids_c.append(pollid)
-        elif res['status'] == 'SUCCESS':
+        elif res["status"] == "SUCCESS":
             self.logger.debug("collecting crawler got result")
             dt = datetime.datetime.now()
-            if 'queues' in res['data']:
-                res['data']['queues']['ts'] = dt
-                self.stats['queue']['total_backlog'].append(res['data']['queues'])
-                self.stats['queue']['total_backlog'] = self.stats['queue']['total_backlog'][:10]
+            if "queues" in res["data"]:
+                res["data"]["queues"]["ts"] = dt
+                self.stats["queue"]["total_backlog"].append(res["data"]["queues"])
+                self.stats["queue"]["total_backlog"] = self.stats["queue"][
+                    "total_backlog"
+                ][:10]
 
     def _crawler_stats_poll(self):
         while self.pollids_c:
@@ -287,10 +314,12 @@ class AdminUIService(object):
                 self.pollids_c.appendleft(pollid)
             else:
                 dt = datetime.datetime.now()
-                if 'queues' in res['data']:
-                    res['data']['queues']['ts'] = dt
-                    self.stats['queue']['total_backlog'].append(res['data']['queues'])
-                    self.stats['queue']['total_backlog'] = self.stats['queue']['total_backlog'][:10]
+                if "queues" in res["data"]:
+                    res["data"]["queues"]["ts"] = dt
+                    self.stats["queue"]["total_backlog"].append(res["data"]["queues"])
+                    self.stats["queue"]["total_backlog"] = self.stats["queue"][
+                        "total_backlog"
+                    ][:10]
 
     def _close_thread(self, thread, thread_name):
         """Closes daemon threads
@@ -300,10 +329,12 @@ class AdminUIService(object):
         """
         if thread is not None and thread.isAlive():
             self.logger.debug("Waiting for {} thread to close".format(thread_name))
-            thread.join(timeout=self.settings['DAEMON_THREAD_JOIN_TIMEOUT'])
+            thread.join(timeout=self.settings["DAEMON_THREAD_JOIN_TIMEOUT"])
             if thread.isAlive():
-                self.logger.warn("{} daemon thread unable to be shutdown"
-                                 " within timeout".format(thread_name))
+                self.logger.warn(
+                    "{} daemon thread unable to be shutdown"
+                    " within timeout".format(thread_name)
+                )
 
     def close(self):
         """
@@ -323,43 +354,38 @@ class AdminUIService(object):
         """
         self.logger.debug("Decorating routes")
 
-        self.app.add_url_rule('/', 'index', self.index,
-                              methods=['GET'])
-        self.app.add_url_rule('/submit', 'submit', self.submit,
-                              methods=['POST', 'GET'])
-        self.app.add_url_rule('/kafka', 'kafka', self.kafka,
-                              methods=['GET'])
-        self.app.add_url_rule('/redis', 'redis', self.redis,
-                              methods=['GET'])
-        self.app.add_url_rule('/crawler', 'crawler', self.crawler,
-                              methods=['GET'])
+        self.app.add_url_rule("/", "index", self.index, methods=["GET"])
+        self.app.add_url_rule("/submit", "submit", self.submit, methods=["POST", "GET"])
+        self.app.add_url_rule("/kafka", "kafka", self.kafka, methods=["GET"])
+        self.app.add_url_rule("/redis", "redis", self.redis, methods=["GET"])
+        self.app.add_url_rule("/crawler", "crawler", self.crawler, methods=["GET"])
 
     def index(self):
         self.logger.info("'index' endpoint called")
         r = self._rest_api.index()
-        if not 'status' in r: # we got a valid response from the index endpoint
+        if not "status" in r:  # we got a valid response from the index endpoint
             status = r
         else:
             status = {
                 "kafka_connected": False,
                 "node_health": "RED",
                 "redis_connected": False,
-                "uptime_sec": 0
+                "uptime_sec": 0,
             }
-        return render_template('index.html', status=status)
+        return render_template("index.html", status=status)
 
     def submit(self):
         self.logger.info("'submit' endpoint called")
         try:
-            if request.method == 'POST':
-                if not request.form['url']:
+            if request.method == "POST":
+                if not request.form["url"]:
                     self.logger.debug("request form does not have a url")
-                    flash('Submit failed')
+                    flash("Submit failed")
                     return redirect("/")
                 else:
                     self.logger.debug("generating submit request")
                     data = {
-                        "url": request.form['url'],
+                        "url": request.form["url"],
                         "crawlid": request.form.get("crawlid", None),
                         "maxdepth": int(request.form.get("depth", None)),
                         "priority": int(request.form.get("priority", None)),
@@ -367,18 +393,16 @@ class AdminUIService(object):
                     }
                     r = self._rest_api.feed(data=data)
                     if r["status"] == "SUCCESS":
-                        flash('You successfully submitted a crawl job')
+                        flash("You successfully submitted a crawl job")
                     else:
-                        flash('Submit failed')
+                        flash("Submit failed")
                     return redirect("/")
             else:
-                self.logger.warn("Unsupported request method type", {
-                                    "method_type": request.method
-                                 })
+                self.logger.warn(
+                    "Unsupported request method type", {"method_type": request.method}
+                )
         except Exception:
-            self.logger.error("Uncaught Exception", {
-                                'ex': traceback.format_exc()
-                              })
+            self.logger.error("Uncaught Exception", {"ex": traceback.format_exc()})
 
     def kafka(self):
         self.logger.info("'kafka' endpoint called")
@@ -386,11 +410,11 @@ class AdminUIService(object):
         totals = []
         dt_items = []
 
-        for item in self.stats['kafka-monitor']['total']:
-            ts = item['ts']
+        for item in self.stats["kafka-monitor"]["total"]:
+            ts = item["ts"]
             tss.append(ts)
 
-            total = item['value']
+            total = item["value"]
             totals.append(total)
 
             dt_items.append(dict(timestamp=ts, total_requests=total))
@@ -398,28 +422,20 @@ class AdminUIService(object):
         graphs = [
             dict(
                 data=[
-                    dict(
-                        x=tss,
-                        y=totals,
-                        type='bar'
-                    ),
+                    dict(x=tss, y=totals, type="bar"),
                 ],
-                layout=dict(
-                    title='Total Requests handled by Kafka Monitor'
-                )
+                layout=dict(title="Total Requests handled by Kafka Monitor"),
             ),
         ]
 
-        ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
+        ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
 
         # Convert the figures to JSON
         graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
         table = self.ItemTable(dt_items)
 
-        return render_template("kafka.html",
-                               ids=ids,
-                               graphJSON=graphJSON, table=table)
+        return render_template("kafka.html", ids=ids, graphJSON=graphJSON, table=table)
 
     def redis(self):
         self.logger.info("'redis' endpoint called")
@@ -427,11 +443,11 @@ class AdminUIService(object):
         totals = []
         dt_items = []
 
-        for item in self.stats['redis-monitor']['total']:
-            ts = item['ts']
+        for item in self.stats["redis-monitor"]["total"]:
+            ts = item["ts"]
             tss.append(ts)
 
-            total = item['value']
+            total = item["value"]
             totals.append(total)
 
             dt_items.append(dict(timestamp=ts, total_requests=total))
@@ -439,27 +455,19 @@ class AdminUIService(object):
         graphs = [
             dict(
                 data=[
-                    dict(
-                        x=tss,
-                        y=totals,
-                        type='bar'
-                    ),
+                    dict(x=tss, y=totals, type="bar"),
                 ],
-                layout=dict(
-                    title='Total Requests handled by Redis Monitor'
-                )
+                layout=dict(title="Total Requests handled by Redis Monitor"),
             ),
         ]
 
-        ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
+        ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
 
         # Convert the figures to JSON
         graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
         table = self.ItemTable(dt_items)
-        return render_template("redis.html",
-                               ids=ids,
-                               graphJSON=graphJSON, table=table)
+        return render_template("redis.html", ids=ids, graphJSON=graphJSON, table=table)
 
     def crawler(self):
         self.logger.info("'crawler' endpoint called")
@@ -467,11 +475,11 @@ class AdminUIService(object):
         totals = []
         dt_items = []
 
-        for item in self.stats['queue']['total_backlog']:
-            ts = item['ts']
+        for item in self.stats["queue"]["total_backlog"]:
+            ts = item["ts"]
             tss.append(ts)
 
-            tb = item['total_backlog']
+            tb = item["total_backlog"]
             totals.append(tb)
 
             dt_items.append(dict(timestamp=ts, total_requests=tb))
@@ -479,54 +487,69 @@ class AdminUIService(object):
         graphs = [
             dict(
                 data=[
-                    dict(
-                        x=tss,
-                        y=totals,
-                        type='bar'
-                    ),
+                    dict(x=tss, y=totals, type="bar"),
                 ],
-                layout=dict(
-                    title='Backlog'
-                )
+                layout=dict(title="Backlog"),
             ),
         ]
 
-        ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
+        ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
 
         # Convert the figures to JSON
         graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
         table = self.ItemTable(dt_items)
-        return render_template("crawler.html",
-                               ids=ids,
-                               graphJSON=graphJSON, table=table)
+        return render_template(
+            "crawler.html", ids=ids, graphJSON=graphJSON, table=table
+        )
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Admin UI Service\n')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Admin UI Service\n")
 
-    parser.add_argument('-s', '--settings', action='store',
-                        required=False,
-                        help="The settings file to read from",
-                        default="localsettings.py")
-    parser.add_argument('-ll', '--log-level', action='store',
-                        required=False, help="The log level",
-                        default=None,
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR',
-                                 'CRITICAL'])
-    parser.add_argument('-lf', '--log-file', action='store_const',
-                        required=False, const=True, default=None,
-                        help='Log the output to the file specified in '
-                        'settings.py. Otherwise logs to stdout')
-    parser.add_argument('-lj', '--log-json', action='store_const',
-                        required=False, const=True, default=None,
-                        help="Log the data in JSON format")
+    parser.add_argument(
+        "-s",
+        "--settings",
+        action="store",
+        required=False,
+        help="The settings file to read from",
+        default="localsettings.py",
+    )
+    parser.add_argument(
+        "-ll",
+        "--log-level",
+        action="store",
+        required=False,
+        help="The log level",
+        default=None,
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+    )
+    parser.add_argument(
+        "-lf",
+        "--log-file",
+        action="store_const",
+        required=False,
+        const=True,
+        default=None,
+        help="Log the output to the file specified in "
+        "settings.py. Otherwise logs to stdout",
+    )
+    parser.add_argument(
+        "-lj",
+        "--log-json",
+        action="store_const",
+        required=False,
+        const=True,
+        default=None,
+        help="Log the data in JSON format",
+    )
 
     args = vars(parser.parse_args())
 
-    ui_service = AdminUIService(args['settings'])
-    ui_service.setup(level=args['log_level'], log_file=args['log_file'], json=args['log_json'])
+    ui_service = AdminUIService(args["settings"])
+    ui_service.setup(
+        level=args["log_level"], log_file=args["log_file"], json=args["log_json"]
+    )
 
     try:
         ui_service.run()

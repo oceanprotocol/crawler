@@ -10,16 +10,16 @@ STAT_REQ_FREQ = 60
 STAT_START_DELAY = 10
 
 # REST host information
-REST_HOST = 'http://localhost:5343'
+REST_HOST = "http://localhost:5343"
 
 DAEMON_THREAD_JOIN_TIMEOUT = 10
 
 # logging setup
-LOGGER_NAME = 'ui-service'
-LOG_DIR = 'logs'
-LOG_FILE = 'ui_service.log'
+LOGGER_NAME = "ui-service"
+LOG_DIR = "logs"
+LOG_FILE = "ui_service.log"
 LOG_MAX_BYTES = 10 * 1024 * 1024
 LOG_BACKUPS = 5
 LOG_STDOUT = True
 LOG_JSON = False
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = "INFO"
