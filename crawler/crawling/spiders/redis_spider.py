@@ -1,14 +1,20 @@
-from builtins import str
+import time
+from urllib.request import Request
+
 from scrapy.exceptions import DontCloseSpider
 from scrapy.spiders import Spider
 from scrapy import signals
-from scrapy_splash import SplashRequest
+
+from crawling.flowUtils import generateNextSpider
+from crawling.models.nextSpidersInfo import NextSpidersInfo
+
 
 
 class RedisSpider(Spider):
     '''
     Base Spider for doing distributed crawls coordinated through Redis
     '''
+
 
     # def start_requests(self):
     #     for url in self.start_urls:
@@ -31,6 +37,7 @@ class RedisSpider(Spider):
         '''
         raise NotImplementedError("Please implement parse() for your spider")
 
+
     def set_logger(self, logger):
         '''
         Set the logger for the spider, different than the default Scrapy one
@@ -38,6 +45,7 @@ class RedisSpider(Spider):
         @param logger: the logger from the scheduler
         '''
         self._logger = logger
+
 
     def reconstruct_headers(self, response):
         """
@@ -65,3 +73,12 @@ class RedisSpider(Spider):
                 key_item_list.append(item)
             header_dict[key] = key_item_list
         return header_dict
+
+    def generateSpiders(self, response, params: NextSpidersInfo):
+        try:
+            for url in params.urls:
+                if params.timeoutTime and params.timeoutTime > 0:
+                    time.sleep(params.timeoutTime)
+                yield generateNextSpider(response, url, params.nextSpider)
+        except Exception as ex:
+            self._logger.error("ERROR: %s" % ex)

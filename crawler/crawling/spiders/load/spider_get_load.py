@@ -1,33 +1,36 @@
 from __future__ import absolute_import
 
-import time
-
 import re
+import time
+from pathlib import Path
 
+from crawling.models.nextSpidersInfo import NextSpidersInfo
 from crawling.mongo.models.CrawlerConfig import CrawlerConfig
 from crawling.mongo.mongoClient import mongoClient
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.flowUtils import generateNextSpider
+
+from scrapy.exceptions import CloseSpider, IgnoreRequest,UsageError
 
 
-class BayutGetPages(RedisSpider):
+class GetLoad(RedisSpider):
     '''
     A spider that walks all links from the requested URL. This is
     the entrypoint for generic crawling.
     '''
-    name = "bayut_pages"
+    name = Path(__file__).stem
     def __init__(self,  *args, **kwargs):
-        super(BayutGetPages, self).__init__(*args, **kwargs)
+        super(GetLoad, self).__init__(*args, **kwargs)
 
     def parse(self, response):
+        if self.close_down:
+            raise CloseSpider(reason='API usage exceeded')
         config = CrawlerConfig(
             **mongoClient["config"].find_one({"baseURL": re.findall('^https?:\/\/[^#?\/]+', response.request.url)[0]}))
         if config is None:
-            self._logger.info("No config found. Please add one for url " + response.request.url)
-            yield
+            return
+        urls = []
         for x in range(2, config.sourceSettings.paginationSettings.staticPagination):
-            url = config.sourceSettings.paginationSettings.url % {'PAG_NUM': str(x)}
-            if config.flowTimeouts[self.name]:
-                time.sleep(config.flowTimeouts[self.name])
-            yield generateNextSpider(response, url, 'bayut_condos')
+            urls.append("https://www.evomag.ro/tv-multimedia-televizoare-led/allview/?page=" + str(x))
+
+        return self.generateNextSpider(response,  NextSpidersInfo("spider_load_test", list(urls), 0))

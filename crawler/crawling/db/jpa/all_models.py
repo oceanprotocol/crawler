@@ -47,6 +47,24 @@ class User(dbM):
         self.role_id = role_id
         self.role = role
 
+class SpiderInfoData(dbM):
+    __tablename__ = 'SpiderInfoData'
+    id = Column(Integer, primary_key=True)
+    spiderName = Column(String(50))
+    jobId = Column(String(100))
+    errorField =Column(String(50))
+    created_datetime = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    updated_datetime = Column(DateTime(timezone=True), default=None, onupdate=datetime.datetime.utcnow)
+    active = Column(Boolean)
+
+    def __init__(self,  spiderName, jobId, errorField, id=None, active=True):
+        self.id = id
+        self.spiderName = spiderName
+        self.jobId = jobId
+        self.errorField = errorField
+        self.active = active
+
+
 class Data(dbM):
     __tablename__ = 'Data'
     id = Column(Integer, primary_key=True)

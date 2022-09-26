@@ -33,6 +33,8 @@ services:
       - redis
       - zookeeper
     restart: always
+    ports:
+      - "105:105"
   rest:
     image: istresearch/scrapy-cluster:rest-ci-dev
     container_name: rest
@@ -142,7 +144,7 @@ services:
       - 6379
     command: redis-server --save 20 1 --loglevel debug --requirepass YQV!myz_grv7grn@pzn
     volumes:
-      - cache:/data
+      - ~/apps/redis-cache:/data
 volumes:
   cache:
     driver: local

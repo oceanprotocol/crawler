@@ -578,12 +578,17 @@ class RestService(object):
         #                        defaults={'path': ''})
         self.app.add_url_rule('/<path:path>', 'catch', self.catch,
                               methods=['GET', 'POST'], defaults={'path': ''})
-        self.app.add_url_rule('/', 'index', self.index,
-                              methods=['POST', 'GET'])
+        self.app.add_url_rule('/system/status', '/system/status', self.system,
+                              methods=['GET'])
         self.app.add_url_rule('/feed', 'feed', self.feed,
                               methods=['POST'])
         self.app.add_url_rule('/poll', 'poll', self.poll,
                               methods=['POST'])
+        self.app.add_url_rule('/workers/available', '/workers/available', self.availableWorkers,
+                              methods=['GET'])
+        self.app.add_url_rule('/workers/count', '/workers/count', self.workersCount,
+                              methods=['GET'])
+
 
     @log_call('Non-existant route called')
     @error_catch
@@ -591,9 +596,9 @@ class RestService(object):
         return self._create_ret_object(self.FAILURE, None, True,
                                        self.DOES_NOT_EXIST), 404
 
-    @log_call('\'index\' endpoint called')
+    @log_call('\'system\' endpoint called')
     @error_catch
-    def index(self):
+    def system(self):
         data = {
             "kafka_connected": self.kafka_connected,
             "redis_connected": self.redis_connected,
@@ -700,6 +705,85 @@ class RestService(object):
         self.logger.warn("Unable to poll redis, not connected")
         return self._create_ret_object(self.FAILURE, None, True,
                                        "Unable to connect to Redis"), 500
+
+    @log_call('\'workersCount\' endpoint called')
+    @error_catch
+    def workersCount(self):
+        the_dict = {}
+        total_backlog = 0
+
+        if self.redis_connected:
+            try:
+                keys = self.redis_conn.keys('*:*:queue')
+                for key in keys:
+                    elements = key.split(":")
+                    spider = elements[0]
+                    domain = elements[1]
+                    spider = 'queue_' + spider
+
+                    if spider not in the_dict:
+                        the_dict[spider] = {
+                            'spider_backlog': 0,
+                            'num_domains': 0,
+                            'domains': []
+                        }
+
+                    count = self.redis_conn.zcard(key)
+                    total_backlog += count
+                    the_dict[spider]['spider_backlog'] += count
+                    the_dict[spider]['num_domains'] += 1
+                    the_dict[spider]['domains'].append({'domain': domain,
+                                                        'backlog': count})
+
+                the_dict['total_backlog'] = total_backlog
+                ret_dict = {
+                    'queues': the_dict
+                }
+            except ConnectionError:
+                self.logger.error("Lost connection to Redis")
+                self._spawn_redis_connection_thread()
+
+            except Exception as ex:
+                self.logger.error(ex)
+        return ret_dict
+
+    @log_call('\'availableWorkers\' endpoint called')
+    @error_catch
+    def availableWorkers(self):
+        self.logger.debug("Gathering spider stats")
+        the_dict = {}
+        spider_set = set()
+        total_spider_count = 0
+
+        keys = self.redis_conn.keys('stats:crawler:*:*:*')
+        for key in keys:
+            # we only care about the spider
+            elements = key.split(":")
+            spider = elements[3]
+
+            if spider not in the_dict:
+                the_dict[spider] = {}
+                the_dict[spider]['count'] = 0
+
+
+
+            elif len(elements) == 5:
+                # got a spider identifier
+                the_dict[spider]['count'] += 1
+                total_spider_count += 1
+                spider_set.add(spider)
+
+            else:
+                self.logger.warn("Unknown crawler stat key", {"key": key})
+
+        # simple counts
+        the_dict['unique_spider_count'] = len(spider_set)
+        the_dict['total_spider_count'] = total_spider_count
+
+        ret_dict = {}
+        ret_dict['spiders'] = the_dict
+
+        return ret_dict
 
 
 if __name__ == '__main__':

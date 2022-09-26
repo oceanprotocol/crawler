@@ -1,10 +1,12 @@
 import re
 
-def getValueIfNotNull(start, *chain):
+def getChainValue(start, chain: [], nullable: bool = True):
     current = start
     for c in chain:
         current = getattr(current, c, None)
         if current is None:
+            if nullable == False:
+                raise Exception
             break
     return current
 

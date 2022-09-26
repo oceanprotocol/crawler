@@ -1,11 +1,9 @@
 from builtins import str
 from builtins import object
-import logging
 import redis
 import socket
 import time
 import sys
-from scrapy.utils.response import response_status_message
 
 from scrapy.xlib.tx import ResponseFailed
 from twisted.internet import defer

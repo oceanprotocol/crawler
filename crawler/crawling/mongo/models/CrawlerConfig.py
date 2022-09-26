@@ -14,18 +14,6 @@ class FieldType(str, Enum):
     string = 'string'
     date = 'date'
 
-class Spider(str, Enum):
-    getCondosPage = 'getCondosPage'
-    getCondos = 'getCondos'
-    getCondoDetails = 'getCondoDetails'
-    bayut_condo_details = 'bayut_condo_details'
-    bayut_condos = 'bayut_condos'
-    bayut_pages = 'bayut_pages'
-    buzzfeed_get = 'buzzfeed_get'
-    sportisimo_pages = 'sportisimo_pages'
-    sportisimo_product_details = 'sportisimo_product_details'
-    sportisimo_products = 'sportisimo_products'
-
 class Selectors(str, Enum):
     pagination = 'pagination'
     maxItemsPagination = 'maxItemsPagination'
@@ -59,7 +47,7 @@ class SourceSettings(BaseModel):
     havePagination: bool = Field(...)
     haveInfiniteScroll: bool = Field(...)
     haveHTTP: bool = Field(...)
-    flow: List[Spider]
+    flow: List[str]
     paginationSettings:  Optional[PaginationSettings]
     selectors: Dict[Selectors, SelectorsValue]
 
@@ -73,5 +61,5 @@ class CrawlerConfig(BaseModel):
     updatedDate: date = Field(...)
     fields: List[FieldInfo]
     sourceSettings: SourceSettings
-    flowTimeouts: Optional[Dict[Spider, float]]
+    flowTimeouts: Optional[Dict[str, float]]
 

@@ -226,7 +226,6 @@ class DistributedScheduler(object):
         for key in self.queue_keys:
             # build final queue key, depending on type and ip bools
             throttle_key = ""
-            self.logger.info("HAHAHSAHHA")
             self.logger.info(self.add_ip)
             if self.add_type:
                 throttle_key = self.spider.name + ":"
@@ -318,8 +317,6 @@ class DistributedScheduler(object):
         Reports the crawler uuid to redis
         '''
 
-        self.logger.info(self.hits)
-        self.logger.info(self.window)
         self.logger.info("Reporting self id", extra={'uuid':self.my_uuid})
         key = "stats:crawler:{m}:{s}:{u}".format(
             m=socket.gethostname(),

@@ -1,3 +1,7 @@
+from crawling.db.jpa.all_models import SpiderInfoData
+from crawling.db.mysqlClient import db_session
+from crawling.db.repository import Repository
+from crawling.exceptions.ParsingValuesException import ParsingValuesException
 from scutils.log_factory import LogFactory
 from scutils.stats_collector import StatsCollector
 import socket
@@ -107,6 +111,13 @@ class RedisStatsMiddleware(object):
                             .format(h=hostname, n=spider_name, s=status_code))
             self.stats_dict[spider_name]['status_codes'][status_code]['lifetime'] = total
 
+    def process_spider_exception(self, response, exception, spider):
+        if isinstance(exception, ParsingValuesException):
+            errorLoggingObj = SpiderInfoData(spider.name, response.meta['crawlid'], exception.field);
+            repoSpiderInfoData = Repository(db_session, SpiderInfoData)
+            repoSpiderInfoData.add(errorLoggingObj)
+            db_session.commit()
+        self.logger.error("ERROR: %s" % exception.message)
     def process_spider_input(self, response, spider):
         '''
         Ensures the meta data from the response is passed

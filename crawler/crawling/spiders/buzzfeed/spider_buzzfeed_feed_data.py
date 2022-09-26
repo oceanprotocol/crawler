@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+
+from pathlib import Path
+
 from bs4 import BeautifulSoup
 
 
@@ -20,7 +23,7 @@ class BuzzfeedGetSpider(RedisSpider):
     A spider that walks all links from the requested URL. This is
     the entrypoint for generic crawling.
     '''
-    name = "buzzfeed_get"
+    name = Path(__file__).stem
     def __init__(self,  *args, **kwargs):
         super(BuzzfeedGetSpider, self).__init__(*args, **kwargs)
 
@@ -29,7 +32,7 @@ class BuzzfeedGetSpider(RedisSpider):
             **mongoClient["config"].find_one({"baseURL": re.findall('^https?:\/\/[^#?\/]+', response.request.url)[0]}))
         if config is None:
             self._logger.info("No config found. Please add one for url " + response.request.url)
-            yield
+            return
 
 
         api_request = APIRequest('https://www.buzzfeed.com')
