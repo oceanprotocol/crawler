@@ -4,6 +4,7 @@ ConcurrentLogHandler==0.9.1
 cryptography==2.3
 cssselect==1.0.3  # Updated from 1.0.1
 enum34==1.1.6
+APScheduler==3.9.1
 funcsigs==1.0.2
 pygtail==0.12.0
 future==0.16.0

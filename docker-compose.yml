@@ -25,6 +25,7 @@ services:
   crawler:
     image: istresearch/scrapy-cluster:crawler-ci-dev
     container_name: crawler
+    tty: true
     build:
       context: .
       dockerfile: docker/crawler/Dockerfile.py3

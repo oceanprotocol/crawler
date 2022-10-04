@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import hashlib
+import json
 from pathlib import Path
 from bs4 import BeautifulSoup
 
@@ -74,7 +76,19 @@ class SportisimoProductDetailsSpider(RedisSpider):
         repoClient = Repository(db_session, Client)
         repo = Repository(db_session, Data)
 
+        self._logger.info(
+            "No config found. Please add one for url " + response.request.url
+        )
         client = repoClient.find_by_code("SPORTISIMO")
-        repo.add(Data(info=shoeInfo.__dict__, client=client))
+        repo.add(
+            Data(
+                info=shoeInfo.__dict__,
+                client=client,
+                url=response.request.url,
+                sha=hashlib.sha256(
+                    json.dumps(shoeInfo.__dict__).encode("utf-8")
+                ).hexdigest(),
+            )
+        )
 
         db_session.commit()

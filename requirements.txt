@@ -5,6 +5,7 @@ Flask==1.0.2  # Updated from 0.12
 Jinja2==2.10  # Updated from 2.9.5
 MarkupSafe==1.1
 pygtail==0.12.0
+APScheduler==3.9.1
 PyDispatcher==2.0.5
 PyYAML==3.12
 Scrapy==1.5.0  # Updated from 1.4.0

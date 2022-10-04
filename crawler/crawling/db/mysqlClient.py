@@ -7,7 +7,7 @@ import importlib
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from .jpa import *
 
-engine = create_engine(os.getenv("SQL_CON"))
+engine = create_engine(os.getenv("SQL_CON"), pool_size=20, max_overflow=0)
 db_session = scoped_session(
     sessionmaker(autocommit=False, autoflush=False, bind=engine)
 )

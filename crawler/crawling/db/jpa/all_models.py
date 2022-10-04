@@ -1,4 +1,13 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, JSON
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    JSON,
+    UniqueConstraint,
+)
 import datetime
 from crawling.db.mysqlClient import dbM
 from sqlalchemy.orm import relationship
@@ -77,12 +86,15 @@ class Data(dbM):
     id = Column(Integer, primary_key=True)
     info = Column(JSON)
     active = Column(Boolean)
-
+    url = Column(String(100))
+    sha = Column(String(100))
     user_id = Column(Integer, ForeignKey("User.id"))
     user = relationship("User")
 
     client_id = Column(Integer, ForeignKey("Client.id"))
     client = relationship("Client")
+
+    __table_args__ = (UniqueConstraint("sha", "url", name="_sha_ulr_uc"),)
 
     def __init__(
         self,
@@ -93,6 +105,8 @@ class Data(dbM):
         user=None,
         client_id=None,
         client=None,
+        url=None,
+        sha=None,
     ):
         self.id = id
         self.info = info
@@ -101,6 +115,8 @@ class Data(dbM):
         self.user = user
         self.client_id = client_id
         self.client = client
+        self.url = url
+        self.sha = sha
 
 
 dbM.metadata.create_all(bind=engine)

@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
+import json
 from pathlib import Path
+import hashlib
 
 from bs4 import BeautifulSoup
 
@@ -127,6 +129,15 @@ class BayoutCondoDetails(RedisSpider):
 
         client = repoClient.find_by_code("BAYUT")
 
-        repo.add(Data(info=apInfo.__dict__, client=client))
+        repo.add(
+            Data(
+                info=apInfo.__dict__,
+                client=client,
+                url=response.request.url,
+                sha=hashlib.sha256(
+                    json.dumps(apInfo.__dict__).encode("utf-8")
+                ).hexdigest(),
+            )
+        )
 
         db_session.commit()

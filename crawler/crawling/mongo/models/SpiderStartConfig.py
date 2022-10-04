@@ -7,6 +7,7 @@ from crawling.mongo.models.PyObjectId import PyObjectId
 class FieldInfo(BaseModel):
     name: str = Field(...)
     no: int = Field(...)
+    maxErrorsPermitted: int = Field(...)
 
 
 class SpiderStartConfig(BaseModel):

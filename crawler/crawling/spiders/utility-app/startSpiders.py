@@ -2,16 +2,25 @@ import os
 import signal
 import time
 from flask import Flask, Response, render_template
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from pygtail import Pygtail
+
+from crawling.db.jpa.all_models import SpiderInfoData
+from crawling.db.repository import Repository
 from crawling.mongo.models.SpiderStartConfig import SpiderStartConfig
 from crawling.mongo.mongoClient import mongoClient
+import secrets
+from crawling.db.mysqlClient import db_session
+from subprocess import Popen
+from os import kill
 
 app = Flask(__name__, static_folder="static/", template_folder="static/")
 
-import secrets
+executors = {"default": ThreadPoolExecutor(16), "processpool": ProcessPoolExecutor(4)}
 
-from subprocess import Popen
-from os import kill
+sched = BackgroundScheduler(timezone="Asia/Seoul", executors=executors)
+
 
 # #
 # #
@@ -122,7 +131,25 @@ def root():
     return render_template("index.html")
 
 
+def job():
+    config = SpiderStartConfig(**mongoClient["spider-config"].find_one())
+    for spider in config.spiders:
+        count = (
+            db_session.query(SpiderInfoData.id)
+            .filter_by(spiderName=spider.name)
+            .count()
+        )
+        if count > spider.maxErrorsPermitted:
+            print("ERROR")
+
+
+sched.add_job(job, "interval", seconds=30)
+
 if __name__ == "__main__":
+    repo = Repository(db_session, SpiderInfoData)
+    repo.permanentDeleteAll()
+    db_session.commit()
     startSpiders()
     print("START")
+    sched.start()
     app.run(host="0.0.0.0", port=105)

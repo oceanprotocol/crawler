@@ -57,5 +57,8 @@ class Repository:
         entity.is_active = False
         self.update(entity, updated_by_user_id=deleted_by_user_id)
 
+    def permanentDeleteAll(self):
+        self.db.query(self.entity).delete()
+
     def permanent_delete(self, entity):
         self.db.delete(entity)

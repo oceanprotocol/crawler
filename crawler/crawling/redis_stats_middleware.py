@@ -1,3 +1,5 @@
+from sqlalchemy.exc import PendingRollbackError
+
 from crawling.db.jpa.all_models import SpiderInfoData
 from crawling.db.mysqlClient import db_session
 from crawling.db.repository import Repository
@@ -134,7 +136,9 @@ class RedisStatsMiddleware(object):
             repoSpiderInfoData = Repository(db_session, SpiderInfoData)
             repoSpiderInfoData.add(errorLoggingObj)
             db_session.commit()
-        self.logger.error("ERROR: %s" % exception.message)
+        elif isinstance(exception, PendingRollbackError):
+            return
+        self.logger.info("ERROR: %s" % exception)
 
     def process_spider_input(self, response, spider):
         """
