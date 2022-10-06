@@ -1,6 +1,6 @@
 from sqlalchemy.exc import PendingRollbackError
 
-from crawling.db.jpa.all_models import SpiderInfoData
+from crawling.db.jpa.all_models import SpiderAuditErrors
 from crawling.db.mysqlClient import db_session
 from crawling.db.repository import Repository
 from crawling.exceptions.ParsingValuesException import ParsingValuesException
@@ -130,11 +130,11 @@ class RedisStatsMiddleware(object):
 
     def process_spider_exception(self, response, exception, spider):
         if isinstance(exception, ParsingValuesException):
-            errorLoggingObj = SpiderInfoData(
+            errorLoggingObj = SpiderAuditErrors(
                 spider.name, response.meta["crawlid"], exception.field
             )
-            repoSpiderInfoData = Repository(db_session, SpiderInfoData)
-            repoSpiderInfoData.add(errorLoggingObj)
+            repoSpiderAuditErrors = Repository(db_session, SpiderAuditErrors)
+            repoSpiderAuditErrors.add(errorLoggingObj)
             db_session.commit()
         elif isinstance(exception, PendingRollbackError):
             return

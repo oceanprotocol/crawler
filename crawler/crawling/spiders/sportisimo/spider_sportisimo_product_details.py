@@ -13,10 +13,9 @@ from crawling.mongo.models.CrawlerConfig import CrawlerConfig
 from crawling.mongo.mongoClient import mongoClient
 from crawling.selectorUtils import selectSoupElement
 
-from crawling.db.jpa.all_models import Data
+from crawling.db.jpa.all_models import Data, Target
 from crawling.db.mysqlClient import db_session
 from crawling.db.repository import Repository
-from crawling.db.jpa.all_models import Client
 
 from crawling.db.models.shoeInfo import ShoeInfo
 
@@ -73,17 +72,15 @@ class SportisimoProductDetailsSpider(RedisSpider):
                 "price", soup, SoupSearchObj("p", {"class": "price"}), ["text"]
             )
         )
-        repoClient = Repository(db_session, Client)
+
+        repoTarget = Repository(db_session, Target)
         repo = Repository(db_session, Data)
 
-        self._logger.info(
-            "No config found. Please add one for url " + response.request.url
-        )
-        client = repoClient.find_by_code("SPORTISIMO")
+        target = repoTarget.find_by_code("SPORTISIMO")
         repo.add(
             Data(
                 info=shoeInfo.__dict__,
-                client=client,
+                target=target,
                 url=response.request.url,
                 sha=hashlib.sha256(
                     json.dumps(shoeInfo.__dict__).encode("utf-8")

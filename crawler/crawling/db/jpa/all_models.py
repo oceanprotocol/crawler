@@ -15,8 +15,8 @@ from sqlalchemy.orm import relationship
 from crawling.db.mysqlClient import engine
 
 
-class Client(dbM):
-    __tablename__ = "Client"
+class Target(dbM):
+    __tablename__ = "Target"
     id = Column(Integer, primary_key=True)
     name = Column(String(10), unique=True)
     code = Column(String(200), unique=True)
@@ -61,8 +61,8 @@ class User(dbM):
         self.role = role
 
 
-class SpiderInfoData(dbM):
-    __tablename__ = "SpiderInfoData"
+class SpiderAuditErrors(dbM):
+    __tablename__ = "SpiderAuditErrors"
     id = Column(Integer, primary_key=True)
     spiderName = Column(String(50))
     jobId = Column(String(100))
@@ -91,9 +91,12 @@ class Data(dbM):
     user_id = Column(Integer, ForeignKey("User.id"))
     user = relationship("User")
 
-    client_id = Column(Integer, ForeignKey("Client.id"))
-    client = relationship("Client")
-
+    target_id = Column(Integer, ForeignKey("Target.id"))
+    target = relationship("Target")
+    created_datetime = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    updated_datetime = Column(
+        DateTime(timezone=True), default=None, onupdate=datetime.datetime.utcnow
+    )
     __table_args__ = (UniqueConstraint("sha", "url", name="_sha_ulr_uc"),)
 
     def __init__(
@@ -103,8 +106,8 @@ class Data(dbM):
         active=None,
         user_id=None,
         user=None,
-        client_id=None,
-        client=None,
+        target_id=None,
+        target=None,
         url=None,
         sha=None,
     ):
@@ -113,8 +116,8 @@ class Data(dbM):
         self.lastName = active
         self.user_id = user_id
         self.user = user
-        self.client_id = client_id
-        self.client = client
+        self.target_id = target_id
+        self.target = target
         self.url = url
         self.sha = sha
 

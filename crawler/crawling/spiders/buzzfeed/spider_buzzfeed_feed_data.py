@@ -11,7 +11,7 @@ from crawling.mongo.models.CrawlerConfig import CrawlerConfig
 from crawling.mongo.mongoClient import mongoClient
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.db.jpa.all_models import Client, Data
+from crawling.db.jpa.all_models import Data, Target
 from crawling.db.models.newsInfo import NewsInfo
 from crawling.db.mysqlClient import db_session
 from crawling.db.repository import Repository
@@ -47,9 +47,9 @@ class BuzzfeedGetSpider(RedisSpider):
         soup = BeautifulSoup(resp.text, "lxml")
         articles = soup.findAll("item")
 
-        repoClient = Repository(db_session, Client)
+        repoTarget = Repository(db_session, Target)
         repo = Repository(db_session, Data)
-        client = repoClient.find_by_code("BUZZFEED")
+        target = repoTarget.find_by_code("BUZZFEED")
 
         for article in articles:
             newsInfo = NewsInfo()
@@ -60,5 +60,5 @@ class BuzzfeedGetSpider(RedisSpider):
             newsInfo.description = article.find("description").text
             newsInfo.pubdate = article.find("pubdate").text
 
-            repo.add(Data(info=newsInfo.__dict__, client=client))
+            repo.add(Data(info=newsInfo.__dict__, target=target))
             db_session.commit()

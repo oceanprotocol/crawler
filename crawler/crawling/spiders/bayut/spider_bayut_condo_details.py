@@ -15,11 +15,10 @@ from crawling.mongo.mongoClient import mongoClient
 from crawling.selectorUtils import selectSoupElement
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.db.jpa.all_models import Data
+from crawling.db.jpa.all_models import Data, Target
 from crawling.db.mysqlClient import db_session
 from crawling.db.repository import Repository
 
-from crawling.db.jpa.all_models import Client
 
 from crawling.db.models.apInfo import ApartmentInfo
 
@@ -124,15 +123,15 @@ class BayoutCondoDetails(RedisSpider):
         )
 
         apInfo.url = response.request.url
-        repoClient = Repository(db_session, Client)
+        repoTarget = Repository(db_session, Target)
         repo = Repository(db_session, Data)
 
-        client = repoClient.find_by_code("BAYUT")
+        target = repoTarget.find_by_code("BAYUT")
 
         repo.add(
             Data(
                 info=apInfo.__dict__,
-                client=client,
+                target=target,
                 url=response.request.url,
                 sha=hashlib.sha256(
                     json.dumps(apInfo.__dict__).encode("utf-8")

@@ -26,12 +26,12 @@ class Repository:
     def get_actives(self):
         return self.db.query(self.entity).filter(self.entity.is_active == True)
 
-    def get_by_client_id(self, client_id: int):
-        return self.db.query(self.entity).filter(self.entity.client_id == client_id)
+    def get_by_target_id(self, target_id: int):
+        return self.db.query(self.entity).filter(self.entity.target_id == target_id)
 
-    def get_actives_client_id(self, client_id: int):
+    def get_actives_target_id(self, target_id: int):
         return self.db.query(self.entity).filter(
-            self.entity.is_active == True, self.entity.client_id == client_id
+            self.entity.is_active == True, self.entity.target_id == target_id
         )
 
     def get_by_create_datetime_range(

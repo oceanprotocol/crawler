@@ -1,12 +1,20 @@
 import os
 import signal
 import time
-from flask import Flask, Response, render_template
+
+import yagmail
+from flask import Flask, Response, render_template, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from pygtail import Pygtail
-
-from crawling.db.jpa.all_models import SpiderInfoData
+from crawling.db.dataRepository import DataRepository
+from crawling.db.jpa.all_models import SpiderAuditErrors
+from crawling.db.jpa.allSchemas import (
+    app_schemas,
+    multiple_data_schema,
+    data_schema,
+    paginate_schema,
+)
 from crawling.db.repository import Repository
 from crawling.mongo.models.SpiderStartConfig import SpiderStartConfig
 from crawling.mongo.mongoClient import mongoClient
@@ -15,8 +23,9 @@ from crawling.db.mysqlClient import db_session
 from subprocess import Popen
 from os import kill
 
-app = Flask(__name__, static_folder="static/", template_folder="static/")
 
+app = Flask(__name__, static_folder="static/", template_folder="static/")
+app.register_blueprint(app_schemas)
 executors = {"default": ThreadPoolExecutor(16), "processpool": ProcessPoolExecutor(4)}
 
 sched = BackgroundScheduler(timezone="Asia/Seoul", executors=executors)
@@ -132,21 +141,36 @@ def root():
 
 
 def job():
+
     config = SpiderStartConfig(**mongoClient["spider-config"].find_one())
     for spider in config.spiders:
         count = (
-            db_session.query(SpiderInfoData.id)
+            db_session.query(SpiderAuditErrors.id)
             .filter_by(spiderName=spider.name)
             .count()
         )
         if count > spider.maxErrorsPermitted:
-            print("ERROR")
+            yag = yagmail.SMTP(
+                "test.mail.radu@gmail.com",
+                "testmailradu",
+                host="smtp.freesmtpservers.com",
+                port=25,
+            )
+            yag.send("radu.gabi93@gmail.com", "TEST", "BRRRR")
 
 
 sched.add_job(job, "interval", seconds=30)
 
+
+@app.route("/data/<target>", methods=["GET"])
+def rrr(target):
+    repo = DataRepository(db_session)
+    data = repo.get_all(target)
+    return jsonify(paginate_schema.dump(data))
+
+
 if __name__ == "__main__":
-    repo = Repository(db_session, SpiderInfoData)
+    repo = Repository(db_session, SpiderAuditErrors)
     repo.permanentDeleteAll()
     db_session.commit()
     startSpiders()
