@@ -8,14 +8,6 @@ This tool will be used to crawl and extract data from condo oriented websites
 Docker & docker-compose installed
 
 
-
-## Installation
-
-Go to root directory and run
-```docker-compose  up --build --force-recreate -d```
-
-
-
 ## Configuration
 
 Create the following directories:
@@ -30,21 +22,20 @@ Create the following directories:
 ## Deployment
 
 Go to root directory and run
-```docker-compose  up --build --force-recreate -d```
+```docker-compose  --env-file .connections.env up --build --force-recreate -d```
 
 ## Post deployment
 
-Create a database in MongoDB named int-parser and a collection called config
-Insert the test data from [here](mongodb-test-data.json)
+Create a database in MongoDB named int-parser and 2 collections called ```config``` and ```spider-config```
+Insert the test data from [here](mongodb-test-data.json) to  ```config```  and [here](spider-config-test-data.json) to ```spider-config```
 
 In mysql, insert the data from [here](sql-test-data.sql)
 ## Run
 
-*KNOWN BUG* before running the crawling ```docker restart redis kafka-monitor```
 
 In order to run, go to [kafka-monitor](kafka-monitor) folder and run ```sh feedItem.sh```
 
-For live logs use ```docker attach crawler```
+For live logs visit ```localhost:105```
 
 ## License
 GNU General Public License v3.0 or later
