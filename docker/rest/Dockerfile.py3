@@ -15,16 +15,9 @@ RUN rm -rf /usr/src/utils
 # move codebase over
 COPY rest /usr/src/app
 
-# ENV
-ENV LOG_STDOUT False
-ENV LOG_LEVEL DEBUG
-ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
-
 # override settings via localsettings.py
 COPY docker/rest/settings.py /usr/src/app/localsettings.py
 
-# copy testing script into container
-COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
 COPY docker/rest/run.sh /usr/src/app/run.sh
 
 # set up environment variables

@@ -28,24 +28,7 @@ RUN touch /usr/src/crawler/logs/sc_crawler.log
 # override settings via localsettings.py
 COPY docker/crawler/settings.py /usr/src/crawler/crawling/localsettings.py
 
-# copy testing script into container
-COPY docker/run_docker_tests.sh /usr/src/crawler/run_docker_tests.sh
-
-# set up environment variables
-ENV SQL_CON   'mysql+pymysql://usr:rootpass@mysql/db'
-ENV MONGO_CON  mongodb://devroot:devroot@mongo:27017
-ENV DB_NAME  int-parser
-ENV QUEUE_HITS  200
-ENV MONGO_DB_DATA_PATH ~/db/mongo
-ENV SQL_DB_DATA_PATH ~/db/sql
-ENV PARSER_REPORT_LOCATION ~/condo-reports
-ENV SC_LOG_STDOUT False
-ENV PYTHONPATH /usr/src/crawler
-
-# ENV SCHEDULER_IP_ENABLED False
-ENV SC_LOG_LEVEL DEBUG
-ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
 
 # run the spider
 
-CMD ["python", "./crawling/spiders/utilityApp/startSpiders.py"]
+CMD ["python", "./crawling/spiders/utility_app/app.py"]

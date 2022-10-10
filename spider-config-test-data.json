@@ -1,0 +1,52 @@
+[{
+  "_id": {
+    "$oid": "632c1b1a9d4752eb9e413197"
+  },
+  "spiders": [
+    {
+      "name": "spider_bayut_condo_details",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_bayut_condos",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_bayut_pages",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_buzzfeed_feed_data",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_sportisimo_pages",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_sportisimo_product_details",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_sportisimo_products",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_get_load",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    },
+    {
+      "name": "spider_load_test",
+      "no": 1,
+      "maxErrorsPermitted": 300
+    }
+  ]
+}]

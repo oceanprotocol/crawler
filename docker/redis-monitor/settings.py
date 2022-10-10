@@ -16,7 +16,7 @@ REDIS_DB = int(os.getenv("REDIS_DB", 0))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
 REDIS_SOCKET_TIMEOUT = int(os.getenv("REDIS_SOCKET_TIMEOUT", 10))
 
-KAFKA_HOSTS = [x.strip() for x in os.getenv("KAFKA_HOSTS", "kafka:9092").split(",")]
+KAFKA_HOSTS = [x.strip() for x in os.getenv("KAFKA_HOSTS", "kafka:29092").split(",")]
 KAFKA_TOPIC_PREFIX = os.getenv("KAFKA_TOPIC_PREFIX", "demo")
 KAFKA_CONN_TIMEOUT = 5
 KAFKA_APPID_TOPICS = str2bool(os.getenv("KAFKA_APPID_TOPICS", False))

@@ -1,4 +1,4 @@
-version: '2'
+version: '3.5'
 
 services:
   kafka_monitor:
@@ -11,6 +11,9 @@ services:
       - kafka
       - redis
     restart: always
+    env_file:
+      - .connections.env
+      - docker/kafka-monitor/.kafka-monitor.env
   redis_monitor:
     image: istresearch/scrapy-cluster:redis-monitor-ci-dev
     container_name: redis-monitor
@@ -22,6 +25,9 @@ services:
       - redis
       - zookeeper
     restart: always
+    env_file:
+      - .connections.env
+      - docker/redis-monitor/.redis-monitor.env
   crawler:
     image: istresearch/scrapy-cluster:crawler-ci-dev
     container_name: crawler
@@ -36,6 +42,9 @@ services:
     restart: always
     ports:
       - "105:105"
+    env_file:
+      - .connections.env
+      - docker/crawler/.crawler.env
   rest:
     image: istresearch/scrapy-cluster:rest-ci-dev
     container_name: rest
@@ -48,6 +57,9 @@ services:
     restart: always
     ports:
       - "5343:5343"
+    env_file:
+      - .connections.env
+      - docker/rest/.rest.env
   ui:
     image: istresearch/scrapy-cluster:ui-ci-dev
     container_name: ui
@@ -60,7 +72,9 @@ services:
     restart: always
     ports:
       - "5000:5000"
-
+    env_file:
+      - .connections.env
+      - docker/ui/.ui.env
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.2
     hostname: zookeeper
@@ -75,16 +89,15 @@ services:
     image: confluentinc/cp-kafka:7.1.2
     container_name: kafka
     ports:
-      - "9092:9092"
+      - ${KAFKA_DEFAULT_PORT}:${KAFKA_DEFAULT_PORT}
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: ${ZOOKEEPER_HOSTS}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "testTopic:1:1"
     depends_on:
       - zookeeper
     restart: always
@@ -95,10 +108,12 @@ services:
     ports:
       - "8080:8080"
     restart: always
+    env_file:
+      - .connections.env
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_HOSTS}
+      KAFKA_CLUSTERS_0_ZOOKEEPER: ${ZOOKEEPER_HOSTS}
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: first
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
   mysql-db:
@@ -107,30 +122,29 @@ services:
     restart: always
     platform: linux/amd64
     environment:
-      MYSQL_DATABASE: 'db'
-      MYSQL_USER: 'usr'
-      MYSQL_PASSWORD: 'rootpass'
-      MYSQL_ROOT_PASSWORD: 'rootpass'
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - '3306:3306'
+      - ${MYSQL_PORT}:${MYSQL_PORT}
     expose:
-      - '3306'
+      - ${MYSQL_PORT}
     volumes:
       - ./scripts:/docker-entrypoint-initdb.d
-      - ${SQL_DB_DATA_PATH}:/var/lib/mysql
+      - ${MYSQL_DB_DATA_PATH}:/var/lib/mysql
   mongo:
     image: mongo
     container_name: mongo
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=devroot
-      - MONGO_INITDB_ROOT_PASSWORD=devroot
-      - MONGO_INITDB_DATABASE=int-parser
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_NAME}
     volumes:
       - .mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       - ~/apps/int-data:/data/db
     ports:
-      - 27017:27017
-      - 9229:9229
+      - ${MONGO_PORT}:${MONGO_PORT}
   splash:
     image: scrapinghub/splash:latest
     container_name: splash
@@ -140,10 +154,10 @@ services:
     image: redis:7.0.4
     container_name: redis
     restart: always
-    user: root
+    user: ${REDIS_USER}
     expose:
-      - 6379
-    command: redis-server --save 20 1 --loglevel debug --requirepass YQV!myz_grv7grn@pzn
+      - ${REDIS_PORT}
+    command: redis-server --save 20 1 --loglevel debug --requirepass ${REDIS_PASSWORD}
     volumes:
       - ~/apps/redis-cache:/data
 volumes:

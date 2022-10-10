@@ -1,8 +1,8 @@
 from sqlalchemy.exc import PendingRollbackError
 
-from crawling.db.jpa.all_models import SpiderAuditErrors
-from crawling.db.mysqlClient import db_session
-from crawling.db.repository import Repository
+from crawling.db.jpa.spider_audit_errors import SpiderAuditErrors
+from crawling.db.mysql_client import db_session
+from crawling.db.repositories.repository import Repository
 from crawling.exceptions.ParsingValuesException import ParsingValuesException
 from scutils.log_factory import LogFactory
 from scutils.stats_collector import StatsCollector
@@ -130,12 +130,11 @@ class RedisStatsMiddleware(object):
 
     def process_spider_exception(self, response, exception, spider):
         if isinstance(exception, ParsingValuesException):
-            errorLoggingObj = SpiderAuditErrors(
+            error_logging_obj = SpiderAuditErrors(
                 spider.name, response.meta["crawlid"], exception.field
             )
-            repoSpiderAuditErrors = Repository(db_session, SpiderAuditErrors)
-            repoSpiderAuditErrors.add(errorLoggingObj)
-            db_session.commit()
+            repo_spider_audit_errors = Repository(db_session, SpiderAuditErrors)
+            repo_spider_audit_errors.add(error_logging_obj)
         elif isinstance(exception, PendingRollbackError):
             return
         self.logger.info("ERROR: %s" % exception)

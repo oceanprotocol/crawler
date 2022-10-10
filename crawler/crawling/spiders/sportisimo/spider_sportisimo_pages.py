@@ -7,11 +7,10 @@ from bs4 import BeautifulSoup
 
 import re
 
-from crawling.models.nextSpidersInfo import NextSpidersInfo
-from crawling.mongo.models.CrawlerConfig import CrawlerConfig
-from crawling.mongo.mongoClient import mongoClient
+from crawling.models.next_spiders_info import NextSpidersInfo
+from crawling.mongo.models.crawler_config import CrawlerConfig
+from crawling.mongo.mongo_client import mongo_client
 from crawling.spiders.redis_spider import RedisSpider
-
 
 
 class SportisimoGetPagesSpider(RedisSpider):
@@ -27,7 +26,7 @@ class SportisimoGetPagesSpider(RedisSpider):
 
     def parse(self, response):
         config = CrawlerConfig(
-            **mongoClient["config"].find_one(
+            **mongo_client["config"].find_one(
                 {"baseURL": re.findall("^https?:\/\/[^#?\/]+", response.request.url)[0]}
             )
         )
@@ -39,12 +38,12 @@ class SportisimoGetPagesSpider(RedisSpider):
         soup = BeautifulSoup(response.text, "lxml")
         page = int(soup.find_all("div", class_="page")[-1].a.text)
         urls = []
-        for x in range(2, 4):
+        for link in range(2, 4):
             urls.append(
-                config.sourceSettings.paginationSettings.url % {"PAG_NUM": str(x)}
+                config.sourceSettings.paginationSettings.url % {"PAG_NUM": str(link)}
             )
 
-        return self.generateSpiders(
+        return self.generate_spiders(
             response,
             NextSpidersInfo(
                 "spider_sportisimo_products", urls, config.flowTimeouts.get(self.name)

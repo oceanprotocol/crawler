@@ -5,10 +5,10 @@ from builtins import str
 from builtins import object
 from past.utils import old_div
 from kafka import KafkaConsumer, KafkaProducer
-from kafka.common import KafkaError
-from kafka.common import OffsetOutOfRangeError
+from kafka.errors import KafkaError
+from kafka.errors import OffsetOutOfRangeError
 from collections import OrderedDict
-from kafka.common import KafkaUnavailableError
+from kafka.errors import KafkaUnavailableError
 from retrying import retry
 import traceback
 
@@ -297,6 +297,7 @@ class KafkaMonitor(object):
                     self.logger.info("no message")
                     break
                 try:
+                    self.logger.info("message")
                     self._increment_total_stat(message.value)
                     loaded_dict = json.loads(message.value)
                     found_plugin = False

@@ -17,10 +17,7 @@ COPY ui /usr/src/app
 
 # override settings via localsettings.py
 COPY docker/ui/settings.py /usr/src/app/localsettings.py
-ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
 
-# copy testing script into container
-COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
 
 # set up environment variables
 

@@ -7,11 +7,10 @@ from bs4 import BeautifulSoup
 
 import re
 
-from crawling.models.nextSpidersInfo import NextSpidersInfo
-from crawling.mongo.models.CrawlerConfig import CrawlerConfig
-from crawling.mongo.mongoClient import mongoClient
+from crawling.models.next_spiders_info import NextSpidersInfo
+from crawling.mongo.models.crawler_config import CrawlerConfig
+from crawling.mongo.mongo_client import mongo_client
 from crawling.spiders.redis_spider import RedisSpider
-
 
 
 class BayutParseCondos(RedisSpider):
@@ -27,7 +26,7 @@ class BayutParseCondos(RedisSpider):
 
     def parse(self, response):
         config = CrawlerConfig(
-            **mongoClient["config"].find_one(
+            **mongo_client["config"].find_one(
                 {"baseURL": re.findall("^https?:\/\/[^#?\/]+", response.request.url)[0]}
             )
         )
@@ -39,16 +38,16 @@ class BayutParseCondos(RedisSpider):
             return
 
         soup = BeautifulSoup(response.text, "lxml")
-        condoLinks = soup.find_all("a", {"aria-label": "Listing link"})
-        uniqueList = []
-        for x in condoLinks:
-            uniqueList.append(str(config.baseURL) + str(x["href"]))
+        condo_links = soup.find_all("a", {"aria-label": "Listing link"})
+        unique_list = []
+        for link in condo_links:
+            unique_list.append(str(config.baseURL) + str(link["href"]))
 
-        return self.generateSpiders(
+        return self.generate_spiders(
             response,
             NextSpidersInfo(
                 "spider_bayut_condo_details",
-                list(set(uniqueList)),
+                list(set(unique_list)),
                 config.flowTimeouts.get(self.name),
             ),
         )

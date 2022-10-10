@@ -5,7 +5,7 @@ from scrapy.spiders import Spider
 from scrapy import signals
 
 from crawling.flowUtils import generateNextSpider
-from crawling.models.nextSpidersInfo import NextSpidersInfo
+from crawling.models.next_spiders_info import NextSpidersInfo
 
 
 class RedisSpider(Spider):
@@ -68,7 +68,7 @@ class RedisSpider(Spider):
             header_dict[key] = key_item_list
         return header_dict
 
-    def generateSpiders(self, response, params: NextSpidersInfo):
+    def generate_spiders(self, response, params: NextSpidersInfo):
         try:
             for url in params.urls:
                 if params.timeoutTime and params.timeoutTime > 0:

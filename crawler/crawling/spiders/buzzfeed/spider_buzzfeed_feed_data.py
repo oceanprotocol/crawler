@@ -7,14 +7,16 @@ from bs4 import BeautifulSoup
 
 import re
 
-from crawling.mongo.models.CrawlerConfig import CrawlerConfig
-from crawling.mongo.mongoClient import mongoClient
+from crawling.db.jpa.data import Data
+from crawling.db.jpa.target import Target
+from crawling.db.models.target_enum import TargetEnum
+from crawling.db.mysql_client import db_session
+from crawling.mongo.models.crawler_config import CrawlerConfig
+from crawling.mongo.mongo_client import mongo_client
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.db.jpa.all_models import Data, Target
-from crawling.db.models.newsInfo import NewsInfo
-from crawling.db.mysqlClient import db_session
-from crawling.db.repository import Repository
+from crawling.db.models.news_info import NewsInfo
+from crawling.db.repositories.repository import Repository
 from crawling.http.api_request import APIRequest
 
 
@@ -31,7 +33,7 @@ class BuzzfeedGetSpider(RedisSpider):
 
     def parse(self, response):
         config = CrawlerConfig(
-            **mongoClient["config"].find_one(
+            **mongo_client["config"].find_one(
                 {"baseURL": re.findall("^https?:\/\/[^#?\/]+", response.request.url)[0]}
             )
         )
@@ -47,18 +49,18 @@ class BuzzfeedGetSpider(RedisSpider):
         soup = BeautifulSoup(resp.text, "lxml")
         articles = soup.findAll("item")
 
-        repoTarget = Repository(db_session, Target)
-        repo = Repository(db_session, Data)
-        target = repoTarget.find_by_code("BUZZFEED")
+        target_repo = Repository(db_session, Target)
+        data_repo = Repository(db_session, Data)
+        target = target_repo.find_by_code(str(TargetEnum.BUZZFEED.value))
 
         for article in articles:
-            newsInfo = NewsInfo()
-            newsInfo.title = article.find("title").text
-            newsInfo.link = article.link.next_sibling.replace("\n", "").replace(
+            news_info = NewsInfo()
+            news_info.title = article.find("title").text
+            news_info.link = article.link.next_sibling.replace("\n", "").replace(
                 "\t", ""
             )
-            newsInfo.description = article.find("description").text
-            newsInfo.pubdate = article.find("pubdate").text
+            news_info.description = article.find("description").text
+            news_info.pubdate = article.find("pubdate").text
 
-            repo.add(Data(info=newsInfo.__dict__, target=target))
-            db_session.commit()
+            data_repo.add(Data(info=news_info.__dict__, target=target))
+            # db_session.commit()

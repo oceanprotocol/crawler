@@ -9,20 +9,22 @@ from bs4 import BeautifulSoup
 
 import re
 
-from crawling.models.selectorModels import SoupSearchObj
-from crawling.mongo.models.CrawlerConfig import CrawlerConfig
-from crawling.mongo.mongoClient import mongoClient
-from crawling.selectorUtils import selectSoupElement
+from crawling.db.jpa.data import Data
+from crawling.db.jpa.target import Target
+from crawling.db.models.target_enum import TargetEnum
+from crawling.db.mysql_client import db_session
+from crawling.models.soup_search import SoupSearchObj
+from crawling.mongo.models.crawler_config import CrawlerConfig
+from crawling.mongo.mongo_client import mongo_client
+from crawling.selector_utils import select_soup_element
 from crawling.spiders.redis_spider import RedisSpider
 
-from crawling.db.jpa.all_models import Data, Target
-from crawling.db.mysqlClient import db_session
-from crawling.db.repository import Repository
+from crawling.db.repositories.repository import Repository
 
 
-from crawling.db.models.apInfo import ApartmentInfo
+from crawling.db.models.ap_info import ApartmentInfo
 
-from crawling.objUtils import getNumberFromStr
+from crawling.obj_utils import get_number_from_str
 
 
 class BayoutCondoDetails(RedisSpider):
@@ -38,7 +40,7 @@ class BayoutCondoDetails(RedisSpider):
 
     def parse(self, response):
         config = CrawlerConfig(
-            **mongoClient["config"].find_one(
+            **mongo_client["config"].find_one(
                 {"baseURL": re.findall("^https?:\/\/[^#?\/]+", response.request.url)[0]}
             )
         )
@@ -51,9 +53,9 @@ class BayoutCondoDetails(RedisSpider):
 
         soup = BeautifulSoup(response.text, "lxml")
 
-        apInfo = ApartmentInfo()
-        apInfo.surface = getNumberFromStr(
-            selectSoupElement(
+        ap_info = ApartmentInfo()
+        ap_info.surface = get_number_from_str(
+            select_soup_element(
                 "surface",
                 soup,
                 SoupSearchObj("span", {"aria-label": "Area"}, True, 0),
@@ -61,8 +63,8 @@ class BayoutCondoDetails(RedisSpider):
             )
         )
 
-        apInfo.roomsNo = getNumberFromStr(
-            selectSoupElement(
+        ap_info.roomsNo = get_number_from_str(
+            select_soup_element(
                 "roomsNo",
                 soup,
                 SoupSearchObj("span", {"aria-label": "Beds"}, True, 0),
@@ -70,8 +72,8 @@ class BayoutCondoDetails(RedisSpider):
             )
         )
 
-        apInfo.bathroomsNo = getNumberFromStr(
-            selectSoupElement(
+        ap_info.bathroomsNo = get_number_from_str(
+            select_soup_element(
                 "bathroomsNo",
                 soup,
                 SoupSearchObj("span", {"aria-label": "Baths"}, True, 0),
@@ -79,28 +81,28 @@ class BayoutCondoDetails(RedisSpider):
             )
         )
 
-        apInfo.type = selectSoupElement(
+        ap_info.type = select_soup_element(
             "type",
             soup,
             SoupSearchObj("span", {"aria-label": "Type"}, True, 0),
             ["text"],
         )
 
-        apInfo.createdOn = selectSoupElement(
+        ap_info.createdOn = select_soup_element(
             "createdOn",
             soup,
             SoupSearchObj("span", {"aria-label": "Reactivated date"}, True, 0),
             ["text"],
         )
-        apInfo.zone = selectSoupElement(
+        ap_info.zone = select_soup_element(
             "zone",
             soup,
             SoupSearchObj("div", {"aria-label": "Property header"}, True, 0),
             ["text"],
         )
 
-        apInfo.price = getNumberFromStr(
-            selectSoupElement(
+        ap_info.price = get_number_from_str(
+            select_soup_element(
                 "price",
                 soup,
                 SoupSearchObj("span", {"aria-label": "Price"}, True, 0),
@@ -108,35 +110,35 @@ class BayoutCondoDetails(RedisSpider):
             )
         )
 
-        apInfo.ccy = selectSoupElement(
+        ap_info.ccy = select_soup_element(
             "ccy",
             soup,
             SoupSearchObj("span", {"aria-label": "Currency"}, True, 0),
             ["text"],
         )
 
-        apInfo.refNo = selectSoupElement(
+        ap_info.refNo = select_soup_element(
             "refNo",
             soup,
             SoupSearchObj("span", {"aria-label": "Reference"}, True, 0),
             ["text"],
         )
 
-        apInfo.url = response.request.url
-        repoTarget = Repository(db_session, Target)
-        repo = Repository(db_session, Data)
+        ap_info.url = response.request.url
+        target_repo = Repository(db_session, Target)
+        data_repo = Repository(db_session, Data)
 
-        target = repoTarget.find_by_code("BAYUT")
+        target = target_repo.find_by_code(str(TargetEnum.BAYUT.value))
 
-        repo.add(
+        data_repo.add(
             Data(
-                info=apInfo.__dict__,
+                info=ap_info.__dict__,
                 target=target,
                 url=response.request.url,
                 sha=hashlib.sha256(
-                    json.dumps(apInfo.__dict__).encode("utf-8")
+                    json.dumps(ap_info.__dict__).encode("utf-8")
                 ).hexdigest(),
             )
         )
 
-        db_session.commit()
+        # db_session.commit()

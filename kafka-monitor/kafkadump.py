@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import division
 from past.utils import old_div
 from kafka import KafkaClient, KafkaConsumer
-from kafka.common import NoBrokersAvailable, KafkaUnavailableError
+from kafka.errors import NoBrokersAvailable, KafkaUnavailableError
 
 import json
 import sys

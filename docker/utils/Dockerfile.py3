@@ -11,8 +11,7 @@ COPY utils /usr/src/app
 RUN pip install .
 RUN pip install nose
 ENV REDIS_PASSWORD YQV!myz_grv7grn@pzn
-# copy testing script into container
-COPY docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
+
 
 # set up environment variables
 

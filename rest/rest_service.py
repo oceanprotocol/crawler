@@ -1,6 +1,7 @@
 import argparse
 from functools import wraps
 from flask import Flask, jsonify, request
+from kafka.errors import OffsetOutOfRangeError
 from werkzeug.exceptions import BadRequest
 from copy import deepcopy
 import sys
@@ -18,11 +19,6 @@ import json
 import threading
 
 from kafka import KafkaConsumer, KafkaProducer
-from kafka.common import KafkaError
-from kafka.common import OffsetOutOfRangeError
-from kafka.common import KafkaUnavailableError
-from kafka.common import NodeNotReadyError
-from kafka.common import NoBrokersAvailable
 from redis.exceptions import ConnectionError
 from kafka.conn import ConnectionStates
 
@@ -616,7 +612,6 @@ class RestService(object):
         future = self.producer.send(self.settings["KAFKA_PRODUCER_TOPIC"], json_item)
         future.add_callback(self._kafka_success)
         future.add_errback(self._kafka_failure)
-
         try:
             record_metadata = future.get(timeout=self.settings["KAFKA_FEED_TIMEOUT"])
         except Exception as e:
@@ -689,7 +684,6 @@ class RestService(object):
                 json_item = request.get_json()
                 self.wait_for_response = False
                 result = self._feed_to_kafka(json_item)
-
                 if "uuid" in json_item:
                     self.wait_for_response = True
                     with self.uuids_lock:

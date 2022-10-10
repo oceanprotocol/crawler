@@ -6,9 +6,9 @@ from bs4 import BeautifulSoup
 
 
 import re
-from crawling.models.nextSpidersInfo import NextSpidersInfo
-from crawling.mongo.models.CrawlerConfig import CrawlerConfig
-from crawling.mongo.mongoClient import mongoClient
+from crawling.models.next_spiders_info import NextSpidersInfo
+from crawling.mongo.models.crawler_config import CrawlerConfig
+from crawling.mongo.mongo_client import mongo_client
 from crawling.spiders.redis_spider import RedisSpider
 
 
@@ -25,7 +25,7 @@ class SportisimoProductsSpider(RedisSpider):
 
     def parse(self, response):
         config = CrawlerConfig(
-            **mongoClient["config"].find_one(
+            **mongo_client["config"].find_one(
                 {"baseURL": re.findall("^https?:\/\/[^#?\/]+", response.request.url)[0]}
             )
         )
@@ -37,9 +37,9 @@ class SportisimoProductsSpider(RedisSpider):
             return
         soup = BeautifulSoup(response.text, "lxml")
         urls = map(
-            lambda x: x.a["href"], soup.find_all("div", class_="product-box__name")
+            lambda url: url.a["href"], soup.find_all("div", class_="product-box__name")
         )
-        return self.generateSpiders(
+        return self.generate_spiders(
             response,
             NextSpidersInfo(
                 "spider_sportisimo_product_details",

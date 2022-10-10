@@ -17,7 +17,7 @@ class ZookeeperMonitor(KafkaBaseMonitor):
         KafkaBaseMonitor.setup(self, settings)
 
         self.zoo_client = KazooClient(hosts=settings["ZOOKEEPER_HOSTS"])
-        self.zoo_client.start()
+        self.zoo_client.start(timeout=60)
         self.path = settings["ZOOKEEPER_ASSIGN_PATH"] + settings["ZOOKEEPER_ID"]
 
         if not self.zoo_client.exists(self.path):

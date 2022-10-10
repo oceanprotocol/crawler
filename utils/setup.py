@@ -10,12 +10,6 @@ def get_version():
         ).group("version")
 
 
-def readme():
-    """Returns README.rst contents as str"""
-    with open("README.rst") as f:
-        return f.read()
-
-
 install_requires = [
     "python-json-logger==0.1.8",  # Updated from 0.1.7
     "ConcurrentLogHandler>=0.9.1",
@@ -47,7 +41,6 @@ setup(
     name="scutils",
     version=get_version(),
     description="Utilities for Scrapy Cluster",
-    long_description=readme(),
     author="Madison Bahmer",
     author_email="madison.bahmer@istresearch.com",
     license="MIT",

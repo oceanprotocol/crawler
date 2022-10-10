@@ -22,7 +22,7 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", None)
 REDIS_SOCKET_TIMEOUT = int(os.getenv("REDIS_SOCKET_TIMEOUT", 10))
 
 # Kafka server information
-KAFKA_HOSTS = [x.strip() for x in os.getenv("KAFKA_HOSTS", "kafka:9092").split(",")]
+KAFKA_HOSTS = [x.strip() for x in os.getenv("KAFKA_HOSTS", "kafka:29092").split(",")]
 KAFKA_TOPIC_PREFIX = os.getenv("KAFKA_TOPIC_PREFIX", "demo")
 KAFKA_APPID_TOPICS = str2bool(os.getenv("KAFKA_APPID_TOPICS", False))
 # base64 encode the html body to avoid json dump errors due to malformed text
@@ -39,7 +39,7 @@ ZOOKEEPER_ASSIGN_PATH = "/scrapy-cluster/crawler/"
 ZOOKEEPER_ID = "all"
 ZOOKEEPER_HOSTS = os.getenv("ZOOKEEPER_HOSTS", "zookeeper:2181")
 
-PUBLIC_IP_URL = "http://ipv4.icanhazip.com/"
+PUBLIC_IP_URL = os.getenv("PUBLIC_IP_URL", "http://ipv4.icanhazip.com/")
 IP_ADDR_REGEX = "(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
 
 # Don't cleanup redis queues, allows to pause/resume crawls.
@@ -197,9 +197,9 @@ DNSCACHE_ENABLED = True
 # ~~~~~~~~~~~~~~~
 
 # enable Zyte Proxy
-ZYTE_SMARTPROXY_ENABLED = False
+ZYTE_SMARTPROXY_ENABLED = str2bool(os.getenv("ZYTE_SMARTPROXY_ENABLED", False))
 # the APIkey you get with your subscription
-# ZYTE_SMARTPROXY_APIKEY = '5ea15747cedd43ed8755c108e956c727'
+ZYTE_SMARTPROXY_APIKEY = os.getenv("ZYTE_SMARTPROXY_APIKEY", "")
 
 try:
     from .localsettings import *

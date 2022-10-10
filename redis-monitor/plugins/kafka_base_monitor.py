@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from builtins import str
 from .base_monitor import BaseMonitor
 from kafka import KafkaProducer
-from kafka.common import KafkaUnavailableError
+from kafka.errors import KafkaUnavailableError
 from scutils.method_timer import MethodTimer
 from retrying import retry
 
