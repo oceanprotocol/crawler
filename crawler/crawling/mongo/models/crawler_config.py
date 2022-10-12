@@ -19,5 +19,5 @@ class CrawlerConfig(BaseModel):
     baseURL: str = Field(...)
     createdDate: date = Field(...)
     updatedDate: date = Field(...)
-    sourceSettings: SourceSettings
+    sourceSettings: Optional[SourceSettings]
     flowTimeouts: Optional[Dict[str, float]]
