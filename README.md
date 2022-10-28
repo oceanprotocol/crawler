@@ -1,5 +1,5 @@
 
-# DIRECTIMO-CONDO-PARSER
+# OCEAN CRAWLER
 
 This tool will be used to crawl and extract data from condo oriented websites
 
