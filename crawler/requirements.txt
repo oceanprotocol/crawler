@@ -52,6 +52,6 @@ mysql-connector-python==8.0.30
 SQLAlchemy==1.4.25
 Flask-MySQL==1.5.2
 scrapy-zyte-smartproxy==2.2.0
-setuptools==57.5.0
+setuptools==65.5.1
 dataclasses==0.8
 # Generated with piprot 0.9.10

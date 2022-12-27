@@ -1,5 +1,5 @@
 # this file is deprecated and will be removed
-setuptools==58.0.0
+setuptools==65.5.1
 ConcurrentLogHandler==0.9.1
 Flask==1.0.2  # Updated from 0.12
 Jinja2==2.10  # Updated from 2.9.5
